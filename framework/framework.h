@@ -1,0 +1,6 @@
+#include "framework/render/render.h"
+#include "framework/input/input.h"
+#include "framework/filesystem/filesystem.h"
+#include "framework/common/common.h"
+#include "framework/asset/asset.h"
+#include "framework/screen/screen.h"
