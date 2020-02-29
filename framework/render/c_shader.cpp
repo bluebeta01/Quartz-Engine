@@ -1,8 +1,8 @@
-#include "framework/pch.h"
+#include "pch.h"
 #include "c_shader.h"
-#include "framework/screen/screen.h"
+#include "screen/screen.h"
 
-Shader::Shader(std::string name, std::string vertexShaderFilePath, std::string pixelShaderFilePath)
+Shader::Shader(std::string name, std::string vertexShaderFilePath, std::string pixelShaderFilePath, ID3D11Device* device)
 {
 	this->name = name;
 
@@ -13,8 +13,8 @@ Shader::Shader(std::string name, std::string vertexShaderFilePath, std::string p
 	if (VSErrors || PSErrors)
 		LOGWARNING((char*)VSErrors->GetBufferPointer());
 
-	screen::dxDevice->CreateVertexShader(VS->GetBufferPointer(), VS->GetBufferSize(), NULL, &dxVertexShader);
-	screen::dxDevice->CreatePixelShader(PS->GetBufferPointer(), PS->GetBufferSize(), NULL, &dxPixelShader);
+	device->CreateVertexShader(VS->GetBufferPointer(), VS->GetBufferSize(), NULL, &dxVertexShader);
+	device->CreatePixelShader(PS->GetBufferPointer(), PS->GetBufferSize(), NULL, &dxPixelShader);
 
 
 	D3D11_INPUT_ELEMENT_DESC ied[] =
@@ -24,5 +24,5 @@ Shader::Shader(std::string name, std::string vertexShaderFilePath, std::string p
 		{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0},
 	};
 
-	screen::dxDevice->CreateInputLayout(ied, 3, VS->GetBufferPointer(), VS->GetBufferSize(), &dxBufferLayout);
+	device->CreateInputLayout(ied, 3, VS->GetBufferPointer(), VS->GetBufferSize(), &dxBufferLayout);
 }

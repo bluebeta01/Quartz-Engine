@@ -1,4 +1,4 @@
-#include "framework/pch.h"
+#include "pch.h"
 #include "c_rendercomponent.h"
 
 RenderComponent::RenderComponent() : Component()

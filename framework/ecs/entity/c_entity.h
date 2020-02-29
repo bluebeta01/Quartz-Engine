@@ -1,7 +1,7 @@
 #pragma once
-#include "framework/pch.h"
-#include "framework/render/c_model.h"
-#include "framework/common/components/c_component.h"
+#include "pch.h"
+#include "render/c_model.h"
+#include "ecs/components/c_component.h"
 
 class Entity
 {

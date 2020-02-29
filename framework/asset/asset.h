@@ -1,5 +1,5 @@
 #pragma once
-#include "framework/pch.h"
+#include "pch.h"
 #include "c_modeldata.h"
 #include "c_texturedata.h"
 #include "c_materialdata.h"

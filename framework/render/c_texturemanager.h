@@ -1,6 +1,6 @@
 #pragma once
 #include "c_texture.h"
-#include "framework/pch.h"
+#include "pch.h"
 
 class TextureManager
 {

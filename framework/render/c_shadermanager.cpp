@@ -1,4 +1,4 @@
-#include "framework/pch.h"
+#include "pch.h"
 #include "c_shadermanager.h"
 
 std::vector<Shader*> ShaderManager::shaders;

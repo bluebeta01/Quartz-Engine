@@ -1,11 +1,11 @@
 #pragma once
-#include "framework/common/c_job.h"
+#include "c_job.h"
 #include "c_model.h"
-#include "framework/asset/c_modeldata.h"
+#include "asset/c_modeldata.h"
 #include "c_texture.h"
-#include "framework/asset/c_texturedata.h"
+#include "asset/c_texturedata.h"
 #include "c_material.h"
-#include "framework/asset/c_materialdata.h"
+#include "asset/c_materialdata.h"
 
 class JobLoadModel : public Job
 {

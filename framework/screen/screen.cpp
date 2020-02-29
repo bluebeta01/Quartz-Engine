@@ -1,6 +1,6 @@
-#include "framework/pch.h"
+#include "pch.h"
 #include "screen.h"
-#include "framework/input/input.h"
+#include "input/input.h"
 
 namespace screen
 {
@@ -107,7 +107,7 @@ namespace screen
 		}
 
 		ShowWindow(windowHandle, 1);
-		initD3D();
+		//initD3D();
 	}
 
 

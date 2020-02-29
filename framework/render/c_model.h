@@ -1,5 +1,5 @@
 #pragma once
-#include "framework/pch.h"
+#include "pch.h"
 #include "c_material.h"
 
 class Model

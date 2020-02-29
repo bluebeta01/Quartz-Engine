@@ -1,4 +1,4 @@
-#include "framework/pch.h"
+#include "pch.h"
 #include "filesystem.h"
 #include "c_plugin.h"
 #include "pluginloader.h"

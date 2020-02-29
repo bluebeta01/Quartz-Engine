@@ -1,7 +1,7 @@
-#include "framework/pch.h"
+#include "pch.h"
 #include "pngloader.h"
 #include <lodepng.h>
-#include "framework/filesystem/filesystem.h"
+#include "filesystem/filesystem.h"
 
 namespace asset
 {

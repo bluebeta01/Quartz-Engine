@@ -1,6 +1,6 @@
 #pragma once
 #include "c_model.h"
-#include "framework/pch.h"
+#include "pch.h"
 
 static class ModelManager
 {

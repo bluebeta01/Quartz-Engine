@@ -1,4 +1,4 @@
-#pragma once
+/*#pragma once
 #include "c_model.h"
 #include "c_texture.h"
 #include "c_material.h"
@@ -46,4 +46,4 @@ private:
 	int viewportSizeX, viewportSizeY;
 	void loadShader(std::string name);
 	void parseModel(JobLoadModel* jobLoadModel);
-};
+};*/

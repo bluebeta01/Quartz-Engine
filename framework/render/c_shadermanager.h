@@ -1,6 +1,6 @@
 #pragma once
 #include "c_shader.h"
-#include "framework/pch.h"
+#include "pch.h"
 
 static class ShaderManager
 {

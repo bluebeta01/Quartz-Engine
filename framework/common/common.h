@@ -1,8 +1,0 @@
-#include "framework/common/c_job.h"
-#include "framework/common/log.h"
-#include "framework/common/components/c_component.h"
-#include "framework/common/components/c_pointlightcomponent.h"
-#include "framework/common/components/c_rendercomponent.h"
-#include "framework/common/entity/c_entity.h"
-#include "framework/common/entity/c_entity_staticmesh.h"
-#include "framework/common/math/transform.h"

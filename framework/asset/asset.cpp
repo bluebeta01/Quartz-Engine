@@ -1,8 +1,8 @@
-#include "framework/pch.h"
+#include "pch.h"
 #include "asset.h"
 #include "jobs.h"
 #include "loader.h"
-#include "framework/screen/screen.h"
+#include "screen/screen.h"
 #include "pngloader.h"
 #include "materialloader.h"
 

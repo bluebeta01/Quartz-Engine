@@ -27,18 +27,6 @@
     <ClCompile Include="asset\pngloader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="common\components\c_pointlightcomponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="common\components\c_rendercomponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="common\entity\c_entity.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="common\entity\c_entity_staticmesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="filesystem\filesystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -48,13 +36,7 @@
     <ClCompile Include="input\input.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="render\c_light.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="render\c_modelmanager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="render\c_pointlight.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="render\c_shader.cpp">
@@ -72,25 +54,16 @@
     <ClCompile Include="render\c_camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="render\c_framebuffer.cpp">
+    <ClCompile Include="render\c_renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="imgui\imgui.cpp">
+    <ClCompile Include="render\c_dx11renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="imgui\imgui_draw.cpp">
+    <ClCompile Include="ecs\components\c_rendercomponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="imgui\imgui_impl_opengl3.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="imgui\imgui_impl_win32.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="imgui\imgui_widgets.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="imgui\imgui_demo.cpp">
+    <ClCompile Include="ecs\entity\c_entity.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -122,30 +95,6 @@
     <ClInclude Include="asset\pngloader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="common\components\c_component.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="common\components\c_pointlightcomponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="common\components\c_rendercomponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="common\entity\c_entity.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="common\entity\c_entity_staticmesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="common\math\transform.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="common\c_job.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="common\log.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="filesystem\c_plugin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -158,9 +107,6 @@
     <ClInclude Include="input\input.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="render\c_light.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="render\c_material.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -171,9 +117,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="render\c_modelmanager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="render\c_pointlight.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="render\c_shader.h">
@@ -203,37 +146,31 @@
     <ClInclude Include="framework.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="common\common.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="render\c_camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="render\c_framebuffer.h">
+    <ClInclude Include="render\c_renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="imgui\imconfig.h">
+    <ClInclude Include="render\c_dx11renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="imgui\imgui.h">
+    <ClInclude Include="c_job.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="imgui\imgui_impl_opengl3.h">
+    <ClInclude Include="log.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="imgui\imgui_impl_win32.h">
+    <ClInclude Include="transform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="imgui\imgui_internal.h">
+    <ClInclude Include="ecs\components\c_component.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="imgui\imstb_rectpack.h">
+    <ClInclude Include="ecs\components\c_rendercomponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="imgui\imstb_textedit.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="imgui\imstb_truetype.h">
+    <ClInclude Include="ecs\entity\c_entity.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

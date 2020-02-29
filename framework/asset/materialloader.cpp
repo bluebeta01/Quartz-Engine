@@ -1,6 +1,6 @@
-#include "framework/pch.h"
+#include "pch.h"
 #include "materialloader.h"
-#include "framework/filesystem/filesystem.h"
+#include "filesystem/filesystem.h"
 
 namespace asset
 {

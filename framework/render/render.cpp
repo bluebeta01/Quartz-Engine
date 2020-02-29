@@ -1,4 +1,4 @@
-#include "framework/pch.h"
+/*#include "framework/pch.h"
 #include "render.h"
 #include "c_shader.h"
 #include "c_shadermanager.h"
@@ -306,4 +306,4 @@ void Renderer::renderModel(Model* model, Shader* shader, unsigned int shaderCons
 void Renderer::clearFrame()
 {
 	screen::dxDeviceContext->ClearRenderTargetView(screen::dxBackBuffer, glm::value_ptr(glm::vec4(0, 0.2, 0.4, 1)));
-}
+}*/

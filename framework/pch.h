@@ -11,9 +11,10 @@
 #include <cstdio>
 #include <cmath>
 #include <iostream>
-#include "common/log.h"
+#include "log.h"
 #include "nlohmann/json.hpp"
-#include "framework/common/math/transform.h"
+#include "transform.h"
 #include <glm.hpp>
 #include <D3D11.h>
-#include <D3DX11.h>
+#include "D3DX11.h"
+#include "c_job.h"

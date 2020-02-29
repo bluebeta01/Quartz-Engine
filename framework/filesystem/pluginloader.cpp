@@ -1,4 +1,4 @@
-#include "framework/pch.h"
+#include "pch.h"
 #include "pluginloader.h"
 
 namespace filesystem

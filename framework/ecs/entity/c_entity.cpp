@@ -1,6 +1,6 @@
-#include "framework/pch.h"
+#include "pch.h"
 #include "c_entity.h"
-#include "framework/render/render.h"
+#include "render/render.h"
 
 Entity::Entity()
 {

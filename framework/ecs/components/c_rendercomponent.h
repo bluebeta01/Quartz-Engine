@@ -1,7 +1,7 @@
 #pragma once
 #include "c_component.h"
-#include "framework/render/c_model.h"
-#include "framework/render/c_material.h"
+#include "render/c_model.h"
+#include "render/c_material.h"
 
 class RenderComponent : public Component
 {
