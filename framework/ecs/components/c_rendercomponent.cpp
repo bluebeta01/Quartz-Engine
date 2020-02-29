@@ -3,7 +3,7 @@
 
 RenderComponent::RenderComponent() : Component()
 {
-
+	m_componentType = COMPONENT_TYPE_RENDER_COMPONENT;
 }
 
 RenderComponent::~RenderComponent()

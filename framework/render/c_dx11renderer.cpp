@@ -76,14 +76,13 @@ void Dx11Renderer::uploadTexture(JobLoadTexture* job)
 {
 
 }
-void Dx11Renderer::renderModel(Model* model, Transform transform, glm::mat4 viewMatrix, glm::mat4 projectionMatrix, Material* overrideMaterial)
+void Dx11Renderer::renderModel(Model* model, glm::mat4 modelMatrix, glm::mat4 viewMatrix, glm::mat4 projectionMatrix, Material* overrideMaterial)
 {
 	UINT stride = sizeof(float) * 8;
 	UINT offset = 0;
 	m_deviceContext->IASetVertexBuffers(0, 1, &model->dxVertexBuffer, &stride, &offset);
 
-	glm::mat4 mm = Transform::matrixFromTransform(transform, true);
-	glm::mat4 cb[3] = { mm, viewMatrix, projectionMatrix };
+	glm::mat4 cb[3] = { modelMatrix, viewMatrix, projectionMatrix };
 	UINT cbSize = sizeof(float) * 16 * 3;
 
 	ID3D11Buffer* constantBuffer;

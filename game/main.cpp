@@ -4,8 +4,6 @@
 #include <gtx/transform.hpp>
 #include <gtc/type_ptr.hpp>
 
-//Camera camera = Camera(glm::vec3(0,0,0), glm::vec3(0,0,0), 40.0f, 0.1f, 1000.0f, 16.0f/9.0f);
-
 int main()
 {
 	std::thread assetThread = asset::assetInit();
@@ -13,16 +11,25 @@ int main()
 
 	//init
 	screen::initializeScreen();
-	Renderer* renderer = new Renderer();
+	World* world = new World();
+	Renderer* renderer = new Renderer(world);
 	renderer->initialize(screen::windowHandle, 1280, 720);
+
+	Entity* e = world->createEntity("MyEntity", Transform(glm::vec3(-15, 0, 0)));
+	RenderComponent* rc = new RenderComponent();
+	rc->setModel(renderer->getModel("Woodball"));
+	e->addComponent(rc);
 
 	Model* m = renderer->getModel("Woodball");
 
 	while (!screen::terminated)
 	{
 		screen::updateScreen();
-		renderer->render(m, Transform(glm::vec3(0, 0, -15), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1)));
+		renderer->setCamera(Camera(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), 40.0f, 0.1f, 1000.0f, (float)renderer->m_width / (float)renderer->m_height));
+		renderer->render();
 		renderer->present();
+
+		e->transform.position.z -= 0.0001f;
 	}
 
 

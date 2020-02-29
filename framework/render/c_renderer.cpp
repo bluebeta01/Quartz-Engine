@@ -4,13 +4,16 @@
 #include "asset/asset.h"
 #include "filesystem/filesystem.h"
 
-Renderer::Renderer()
+Renderer::Renderer(World* world) : m_world(world)
 {
 
 }
 
 void Renderer::initialize(HWND windowHandle, int width, int height)
 {
+	m_width = width;
+	m_height = height;
+	m_camera = Camera(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), 40.0f, 0.1f, 1000.0f, (float)m_width / (float)m_height);
 	m_dx11Renderer.initialize(windowHandle, width, height);
 	loadShader("standard");
 }
@@ -72,14 +75,22 @@ Material* Renderer::getMaterial(std::string name)
 	return material;
 }
 
-void Renderer::render(Model* model, Transform transform)
+void Renderer::render()
 {
 	proccessLoadJobs();
-
 	m_dx11Renderer.clearFrame();
 	m_dx11Renderer.bindShader(m_shaderManager.getShaderByName("standard"));
 	glm::mat4 pm = glm::perspective(glm::radians(40.0f), 16.0f / 9.0f, 0.1f, 1000.0f);
-	m_dx11Renderer.renderModel(model, transform, glm::mat4(1.0f), pm, NULL);
+
+	for (std::pair<EntityUid, Entity*> pair : m_world->m_entityMap)
+	{
+		RenderComponent* rc = dynamic_cast<RenderComponent*>(pair.second->getComponent(Component::COMPONENT_TYPE_RENDER_COMPONENT));
+		if (!rc)
+			continue;
+		Model* m = rc->getModel();
+		glm::mat4 mm = Transform::matrixFromTransform(pair.second->transform, true);
+		m_dx11Renderer.renderModel(m, mm, m_camera.getViewMatrix(), pm, NULL);
+	}
 }
 
 void Renderer::present()

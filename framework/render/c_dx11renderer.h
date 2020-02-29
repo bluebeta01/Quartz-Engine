@@ -9,7 +9,7 @@ public:
 	void initialize(HWND windowHandle, int width, int height);
 	void uploadModel(JobLoadModel* job);
 	void uploadTexture(JobLoadTexture* job);
-	void renderModel(Model* model, Transform transform, glm::mat4 viewMatrix, glm::mat4 projectionMatrix, Material* overrideMaterial);
+	void renderModel(Model* model, glm::mat4 modelMatrix, glm::mat4 viewMatrix, glm::mat4 projectionMatrix, Material* overrideMaterial);
 	void clearFrame();
 	void bindShader(Shader* shader);
 	void present();

@@ -12,11 +12,6 @@ Camera::Camera(glm::vec3 location, glm::vec3 rotation, float fov, float nearPlan
 	this->aspect = aspect;
 }
 
-Camera::~Camera()
-{
-
-}
-
 glm::mat4 Camera::getViewMatrix()
 {
 	glm::vec3 camFront;

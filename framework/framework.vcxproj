@@ -138,6 +138,7 @@
     <ClCompile Include="asset\loader.cpp" />
     <ClCompile Include="asset\materialloader.cpp" />
     <ClCompile Include="asset\pngloader.cpp" />
+    <ClCompile Include="c_world.cpp" />
     <ClCompile Include="ecs\components\c_rendercomponent.cpp" />
     <ClCompile Include="ecs\entity\c_entity.cpp" />
     <ClCompile Include="filesystem\filesystem.cpp" />
@@ -162,6 +163,7 @@
     <ClInclude Include="asset\loader.h" />
     <ClInclude Include="asset\materialloader.h" />
     <ClInclude Include="asset\pngloader.h" />
+    <ClInclude Include="c_world.h" />
     <ClInclude Include="ecs\components\c_component.h" />
     <ClInclude Include="ecs\components\c_rendercomponent.h" />
     <ClInclude Include="c_job.h" />

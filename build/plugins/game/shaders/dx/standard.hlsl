@@ -31,7 +31,7 @@ VOut VShader(float4 position : POSITION, float4 normal : NORMAL, float2 texcoord
 float4 PShader(float4 position : SV_POSITION, float3 pixelPos : POSITION, float3 normal : NORMAL) : SV_TARGET
 {
 	float3 ambientLight = { 0.3f, 0.3f, 0.3f };
-	float3 lightPos = { 0,0,0 };
+	float3 lightPos = { 0,0,20 };
 	normal = normalize(normal);
 	float3 lightDir = normalize(lightPos - pixelPos);
 	float diff = max(dot(normal, lightDir), 0.0);
