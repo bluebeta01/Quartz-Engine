@@ -6,7 +6,9 @@ class Model
 {
 public:
 	ID3D11Buffer* dxVertexBuffer;
-	unsigned int vertCount;
+	UINT vertCount;
+	UINT m_vertexSize;
+	UINT m_dataSize;
 	std::string name;
 	Material* material;
 };

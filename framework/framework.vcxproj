@@ -148,9 +148,11 @@
     <ClCompile Include="render\c_dx11renderer.cpp" />
     <ClCompile Include="render\c_modelmanager.cpp" />
     <ClCompile Include="render\c_renderer.cpp" />
-    <ClCompile Include="render\c_shader.cpp" />
     <ClCompile Include="render\c_shadermanager.cpp" />
+    <ClCompile Include="render\c_texture.cpp" />
     <ClCompile Include="render\render.cpp" />
+    <ClCompile Include="render\shaders\c_colorpickshader.cpp" />
+    <ClCompile Include="render\shaders\c_standardshader.cpp" />
     <ClCompile Include="screen\screen.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -169,6 +171,8 @@
     <ClInclude Include="c_job.h" />
     <ClInclude Include="ecs\entity\c_entity.h" />
     <ClInclude Include="log.h" />
+    <ClInclude Include="render\shaders\c_colorpickshader.h" />
+    <ClInclude Include="render\shaders\c_standardshader.h" />
     <ClInclude Include="transform.h" />
     <ClInclude Include="filesystem\c_plugin.h" />
     <ClInclude Include="filesystem\filesystem.h" />

@@ -15,17 +15,8 @@ void Renderer::initialize(HWND windowHandle, int width, int height)
 	m_height = height;
 	m_camera = Camera(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), 40.0f, 0.1f, 1000.0f, (float)m_width / (float)m_height);
 	m_dx11Renderer.initialize(windowHandle, width, height);
-	loadShader("standard");
-}
-
-void Renderer::beginRender()
-{
-
-}
-
-void Renderer::endRender()
-{
-
+	m_standardShader = new StandardShader(m_dx11Renderer.m_device);
+	m_colorPickShader = new ColorPickShader(m_dx11Renderer.m_device);
 }
 
 Model* Renderer::getModel(std::string name)
@@ -79,7 +70,6 @@ void Renderer::render()
 {
 	proccessLoadJobs();
 	m_dx11Renderer.clearFrame();
-	m_dx11Renderer.bindShader(m_shaderManager.getShaderByName("standard"));
 	glm::mat4 pm = glm::perspective(glm::radians(40.0f), 16.0f / 9.0f, 0.1f, 1000.0f);
 
 	for (std::pair<EntityUid, Entity*> pair : m_world->m_entityMap)
@@ -89,7 +79,7 @@ void Renderer::render()
 			continue;
 		Model* m = rc->getModel();
 		glm::mat4 mm = Transform::matrixFromTransform(pair.second->transform, true);
-		m_dx11Renderer.renderModel(m, mm, m_camera.getViewMatrix(), pm, NULL);
+		m_dx11Renderer.renderModel(m, mm, m_camera.getViewMatrix() , m_camera.getPerspectiveMatrix(), NULL, m_standardShader);
 	}
 }
 
@@ -117,6 +107,8 @@ void Renderer::proccessLoadJobs()
 		jobLoadModel->model->name = jobLoadModel->modelData->name;
 		jobLoadModel->model->vertCount = jobLoadModel->modelData->vertCount;
 		jobLoadModel->model->material = getMaterial(jobLoadModel->modelData->materialName);
+		jobLoadModel->model->m_vertexSize = jobLoadModel->modelData->floatsPerVert * sizeof(float);
+		jobLoadModel->model->m_dataSize = jobLoadModel->modelData->floatsPerVert * sizeof(float) * jobLoadModel->modelData->vertCount;
 		m_modelManager.registerModel(jobLoadModel->model);
 
 		delete jobLoadModel;
@@ -161,22 +153,63 @@ void Renderer::proccessLoadJobs()
 	LOGERROR("Unknown job sent to render!");
 }
 
-void Renderer::loadShader(std::string name)
+Entity* Renderer::colorPick(glm::vec2 cursorPosition)
 {
-	std::string vpath;
-	vpath.append("shaders/dx/");
-	vpath.append(name);
-	vpath.append(".hlsl");
+	//std::unordered_map<glm::vec3, Entity*> colorEntityMap;
+	glm::vec3 nextColor = {0.0f, 0.0f, 0.01f};
 
-	vpath = filesystem::findFilePathByName(vpath);
+	struct ColorEntityPair
+	{
+		glm::vec3 color;
+		Entity* entity;
+	};
 
-	std::string fpath;
-	fpath.append("shaders/dx/");
-	fpath.append(name);
-	fpath.append(".hlsl");
+	std::vector<ColorEntityPair> colorEntities;
 
-	fpath = filesystem::findFilePathByName(fpath);
+	m_dx11Renderer.clearColorPick(m_colorPickShader);
 
-	Shader* shader = new Shader(name, vpath, fpath, m_dx11Renderer.m_device);
-	m_shaderManager.registerShader(shader);
+	for (std::pair<EntityUid, Entity*> pair : m_world->m_entityMap)
+	{
+		glm::vec3 color = nextColor;
+		nextColor.z += 0.01f;
+		if (nextColor.z == 1.01f)
+		{
+			nextColor.z = 0.0f;
+			nextColor.y += 0.01f;
+		}
+		if (nextColor.y == 1.01f)
+		{
+			nextColor.y = 0.0f;
+			nextColor.x += 0.01f;
+		}
+
+		ColorEntityPair cep = { color, pair.second };
+		colorEntities.push_back(cep);
+
+		RenderComponent* rc = dynamic_cast<RenderComponent*>(pair.second->getComponent(Component::COMPONENT_TYPE_RENDER_COMPONENT));
+		if (!rc)
+			continue;
+		Model* m = rc->getModel();
+		glm::mat4 mm = Transform::matrixFromTransform(pair.second->transform, true);
+		//m_dx11Renderer.renderModel(m, mm, m_camera.getViewMatrix(), m_camera.getPerspectiveMatrix(), NULL, m_standardShader);
+		//DO COLORED RENDER
+		m_dx11Renderer.renderColorPickModel(m, mm, m_camera.getViewMatrix(), m_camera.getPerspectiveMatrix(), m_colorPickShader, color);
+
+
+	}
+
+	glm::vec3 result = m_dx11Renderer.getColorPickColor(cursorPosition, m_colorPickShader);
+
+	for (ColorEntityPair cep : colorEntities)
+	{
+		if (result == cep.color)
+			return cep.entity;
+	}
+
+	return nullptr;
+}
+
+glm::vec3 Renderer::screenToWorldPosition(glm::vec2 cursorPosition)
+{
+	return m_dx11Renderer.screenToWorldPosition(cursorPosition, m_camera.getViewMatrix(), m_camera.getPerspectiveMatrix());
 }

@@ -1,13 +1,12 @@
 #pragma once
-#include "pch.h"
+#include <D3D11.h>
 
 class Shader
 {
 public:
-	Shader(std::string name, std::string vertexShaderFilePath, std::string pixelShaderFilePath, ID3D11Device* device);
-	std::string name;
-	ID3D11VertexShader* dxVertexShader;
-	ID3D11PixelShader* dxPixelShader;
-	ID3D11InputLayout* dxBufferLayout;
+	virtual ~Shader() {};
+	ID3D11VertexShader* m_dxVertexShader;
+	ID3D11PixelShader* m_dxPixelShader;
+	ID3D11InputLayout* m_dxBufferLayout;
 private:
 };

@@ -32,3 +32,9 @@ glm::vec3 Camera::getForward()
 	camFront = glm::normalize(camFront);
 	return camFront;
 }
+
+glm::mat4 Camera::getPerspectiveMatrix()
+{
+	return glm::perspectiveFovLH(fov, 1280.0f, 720.0f, nearPlane, farPlane);
+	//return glm::perspective(glm::radians(fov), aspect, nearPlane, farPlane);
+}
