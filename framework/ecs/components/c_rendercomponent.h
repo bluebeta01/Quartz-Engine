@@ -12,6 +12,7 @@ public:
 	Model* getModel();
 	void setOverrideMaterial(Material* material);
 	Material* getOverrideMaterial();
+	bool m_onTop = false;
 
 private:
 	Model * model = NULL;

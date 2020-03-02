@@ -9,6 +9,7 @@ public:
 	~Camera() {};
 	glm::mat4 getViewMatrix();
 	glm::vec3 getForward();
+	glm::vec3 getRight();
 	glm::mat4 getPerspectiveMatrix();
 	Transform transform;
 	float fov;

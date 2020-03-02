@@ -19,6 +19,13 @@ void Renderer::initialize(HWND windowHandle, int width, int height)
 	m_colorPickShader = new ColorPickShader(m_dx11Renderer.m_device);
 }
 
+Framebuffer* Renderer::createFramebuffer()
+{
+	Framebuffer* frameBuffer = new Framebuffer();
+	frameBuffer->initialize(m_dx11Renderer.m_device, m_width, m_height);
+	return frameBuffer;
+}
+
 Model* Renderer::getModel(std::string name)
 {
 	Model* m = m_modelManager.getModelByName(name);
@@ -66,21 +73,56 @@ Material* Renderer::getMaterial(std::string name)
 	return material;
 }
 
+void Renderer::renderModel(Model* model, glm::mat4 modelMatrix, glm::mat4 viewMatrix, glm::mat4 projectionMatrix,
+	Material* overrideMaterial, Framebuffer* frameBuffer, bool depth)
+{
+	m_dx11Renderer.enableDepth(depth);
+	m_dx11Renderer.renderModel(model, modelMatrix, viewMatrix, projectionMatrix, overrideMaterial, m_standardShader, frameBuffer);
+	m_dx11Renderer.enableDepth(depth);
+}
+
+void Renderer::clearFramebuffer(Framebuffer* framebuffer)
+{
+	m_dx11Renderer.clearFramebuffer(framebuffer);
+}
+
 void Renderer::render()
 {
 	proccessLoadJobs();
 	m_dx11Renderer.clearFrame();
+	m_dx11Renderer.enableDepth(true);
 	glm::mat4 pm = glm::perspective(glm::radians(40.0f), 16.0f / 9.0f, 0.1f, 1000.0f);
+
+	std::vector<Entity*> onTopModels;
 
 	for (std::pair<EntityUid, Entity*> pair : m_world->m_entityMap)
 	{
-		RenderComponent* rc = dynamic_cast<RenderComponent*>(pair.second->getComponent(Component::COMPONENT_TYPE_RENDER_COMPONENT));
-		if (!rc)
-			continue;
-		Model* m = rc->getModel();
-		glm::mat4 mm = Transform::matrixFromTransform(pair.second->transform, true);
-		m_dx11Renderer.renderModel(m, mm, m_camera.getViewMatrix() , m_camera.getPerspectiveMatrix(), NULL, m_standardShader);
+		if (pair.second->getComponent(Component::COMPONENT_TYPE_RENDER_COMPONENT)->enabled)
+		{
+			RenderComponent* rc = dynamic_cast<RenderComponent*>(pair.second->getComponent(Component::COMPONENT_TYPE_RENDER_COMPONENT));
+			if (!rc)
+				continue;
+			Model* m = rc->getModel();
+			if (rc->m_onTop)
+			{
+				onTopModels.push_back(pair.second);
+				continue;
+			}
+			glm::mat4 mm = Transform::matrixFromTransform(pair.second->transform, true);
+			m_dx11Renderer.renderModel(m, mm, m_camera.getViewMatrix(), m_camera.getPerspectiveMatrix(), NULL, m_standardShader, nullptr);
+		}
 	}
+
+	m_dx11Renderer.enableDepth(false);
+	for (Entity* e : onTopModels)
+	{
+		RenderComponent* rc = dynamic_cast<RenderComponent*>(e->getComponent(Component::COMPONENT_TYPE_RENDER_COMPONENT));
+		Model* m = rc->getModel();
+		glm::mat4 mm = Transform::matrixFromTransform(e->transform, true);
+		m_dx11Renderer.renderModel(m, mm, m_camera.getViewMatrix(), m_camera.getPerspectiveMatrix(), NULL, m_standardShader, nullptr);
+	}
+	m_dx11Renderer.enableDepth(true);
+	
 }
 
 void Renderer::present()
@@ -168,8 +210,19 @@ Entity* Renderer::colorPick(glm::vec2 cursorPosition)
 
 	m_dx11Renderer.clearColorPick(m_colorPickShader);
 
+	std::vector<Entity*> onTopModels;
+
 	for (std::pair<EntityUid, Entity*> pair : m_world->m_entityMap)
 	{
+		RenderComponent* rc = dynamic_cast<RenderComponent*>(pair.second->getComponent(Component::COMPONENT_TYPE_RENDER_COMPONENT));
+		if (!rc)
+			continue;
+		if (rc->m_onTop)
+		{
+			onTopModels.push_back(pair.second);
+			continue;
+		}
+
 		glm::vec3 color = nextColor;
 		nextColor.z += 0.01f;
 		if (nextColor.z == 1.01f)
@@ -186,30 +239,56 @@ Entity* Renderer::colorPick(glm::vec2 cursorPosition)
 		ColorEntityPair cep = { color, pair.second };
 		colorEntities.push_back(cep);
 
-		RenderComponent* rc = dynamic_cast<RenderComponent*>(pair.second->getComponent(Component::COMPONENT_TYPE_RENDER_COMPONENT));
-		if (!rc)
-			continue;
 		Model* m = rc->getModel();
 		glm::mat4 mm = Transform::matrixFromTransform(pair.second->transform, true);
 		//m_dx11Renderer.renderModel(m, mm, m_camera.getViewMatrix(), m_camera.getPerspectiveMatrix(), NULL, m_standardShader);
 		//DO COLORED RENDER
 		m_dx11Renderer.renderColorPickModel(m, mm, m_camera.getViewMatrix(), m_camera.getPerspectiveMatrix(), m_colorPickShader, color);
-
-
 	}
+
+
+	m_dx11Renderer.enableDepth(false);
+	for(Entity* e : onTopModels)
+	{
+		glm::vec3 color = nextColor;
+		nextColor.z += 0.01f;
+		if (nextColor.z == 1.01f)
+		{
+			nextColor.z = 0.0f;
+			nextColor.y += 0.01f;
+		}
+		if (nextColor.y == 1.01f)
+		{
+			nextColor.y = 0.0f;
+			nextColor.x += 0.01f;
+		}
+
+		ColorEntityPair cep = { color, e };
+		colorEntities.push_back(cep);
+
+		RenderComponent* rc = dynamic_cast<RenderComponent*>(e->getComponent(Component::COMPONENT_TYPE_RENDER_COMPONENT));
+		Model* m = rc->getModel();
+		glm::mat4 mm = Transform::matrixFromTransform(e->transform, true);
+		m_dx11Renderer.renderColorPickModel(m, mm, m_camera.getViewMatrix(), m_camera.getPerspectiveMatrix(), m_colorPickShader, color);
+	}
+	m_dx11Renderer.enableDepth(true);
 
 	glm::vec3 result = m_dx11Renderer.getColorPickColor(cursorPosition, m_colorPickShader);
 
 	for (ColorEntityPair cep : colorEntities)
 	{
-		if (result == cep.color)
+		const double ep = 1e-5;
+		bool equalX = std::abs(result.x - cep.color.x) <= ep * std::abs(result.x);
+		bool equalZ = std::abs(result.z - cep.color.z) <= ep * std::abs(result.z);
+		bool equalY = std::abs(result.y - cep.color.y) <= ep * std::abs(result.y);
+		if (equalX && equalY && equalZ)
 			return cep.entity;
 	}
-
+	
 	return nullptr;
 }
 
-glm::vec3 Renderer::screenToWorldPosition(glm::vec2 cursorPosition)
+glm::vec3 Renderer::screenToWorldPosition(glm::vec2 cursorPosition, Framebuffer* framebuffer)
 {
-	return m_dx11Renderer.screenToWorldPosition(cursorPosition, m_camera.getViewMatrix(), m_camera.getPerspectiveMatrix());
+	return m_dx11Renderer.screenToWorldPosition(cursorPosition, m_camera.getViewMatrix(), m_camera.getPerspectiveMatrix(), framebuffer);
 }

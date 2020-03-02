@@ -146,6 +146,7 @@
     <ClCompile Include="input\input.cpp" />
     <ClCompile Include="render\c_camera.cpp" />
     <ClCompile Include="render\c_dx11renderer.cpp" />
+    <ClCompile Include="render\c_framebuffer.cpp" />
     <ClCompile Include="render\c_modelmanager.cpp" />
     <ClCompile Include="render\c_renderer.cpp" />
     <ClCompile Include="render\c_shadermanager.cpp" />
@@ -171,6 +172,7 @@
     <ClInclude Include="c_job.h" />
     <ClInclude Include="ecs\entity\c_entity.h" />
     <ClInclude Include="log.h" />
+    <ClInclude Include="render\c_framebuffer.h" />
     <ClInclude Include="render\shaders\c_colorpickshader.h" />
     <ClInclude Include="render\shaders\c_standardshader.h" />
     <ClInclude Include="transform.h" />

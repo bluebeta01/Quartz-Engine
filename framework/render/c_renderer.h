@@ -8,6 +8,7 @@
 #include "c_world.h"
 #include "shaders/c_standardshader.h"
 #include "shaders/c_colorpickshader.h"
+#include "c_framebuffer.h"
 
 class Renderer
 {
@@ -26,8 +27,13 @@ public:
 	void render();
 	void present();
 	Entity* colorPick(glm::vec2 cursorPosition);
+	void renderModel(Model* model, glm::mat4 modelMatrix, glm::mat4 viewMatrix, glm::mat4 projectionMatrix,
+		Material* overrideMaterial, Framebuffer* frameBuffer, bool depth);
+	Framebuffer* createFramebuffer();
 
-	glm::vec3 screenToWorldPosition(glm::vec2 cursorPosition);
+	void clearFramebuffer(Framebuffer* framebuffer);
+
+	glm::vec3 screenToWorldPosition(glm::vec2 cursorPosition, Framebuffer* framebuffer);
 
 	void proccessLoadJobs();
 private:

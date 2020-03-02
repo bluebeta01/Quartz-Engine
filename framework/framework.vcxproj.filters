@@ -75,6 +75,9 @@
     <ClCompile Include="render\shaders\c_colorpickshader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="render\c_framebuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="asset\asset.h">
@@ -189,6 +192,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="render\shaders\c_colorpickshader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="render\c_framebuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

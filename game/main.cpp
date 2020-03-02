@@ -14,7 +14,7 @@ int main()
 	Renderer* renderer = new Renderer(world);
 	renderer->initialize(screen::windowHandle, 1280, 720);
 
-	Entity* e = world->createEntity("MyEntity", Transform(glm::vec3(0, 0, 3), glm::vec3(45,45,0), glm::vec3(1,1,1)));
+	Entity* e = world->createEntity("MyEntity", Transform(glm::vec3(0, 0, 15), glm::vec3(45,45,0), glm::vec3(1,1,1)));
 	RenderComponent* rc = new RenderComponent();
 	rc->setModel(renderer->getModel("Cube"));
 	e->addComponent(rc);
@@ -28,6 +28,11 @@ int main()
 	RenderComponent* tinyBallrc = new RenderComponent();
 	tinyBallrc->setModel(renderer->getModel("Woodball"));
 	tinyBall->addComponent(tinyBallrc);
+
+	Entity* plane = world->createEntity("plane", Transform(glm::vec3(0.0f, -1.0f, 10.0f), glm::vec3(-90, 0, 0), glm::vec3(100.0, 100.0, 100.0)));
+	RenderComponent* planerc = new RenderComponent();
+	planerc->setModel(renderer->getModel("debugplane"));
+	plane->addComponent(planerc);
 
 
 	while (!screen::terminated)

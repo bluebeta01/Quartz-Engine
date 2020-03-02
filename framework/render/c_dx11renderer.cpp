@@ -66,6 +66,9 @@ void Dx11Renderer::initialize(HWND windowHandle, int width, int height)
 	dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	dsDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 	status = m_device->CreateDepthStencilState(&dsDesc, &m_depthStencilState);
+
+	dsDesc.DepthEnable = false;
+	status = m_device->CreateDepthStencilState(&dsDesc, &m_depthStencilStateNoDepth);
 	
 
 
@@ -121,7 +124,7 @@ void Dx11Renderer::uploadModel(JobLoadModel* job)
 }
 void Dx11Renderer::clearFrame()
 {
-	m_deviceContext->ClearRenderTargetView(m_backBuffer, glm::value_ptr(glm::vec4(0, 0.2, 0.4, 1)));
+	m_deviceContext->ClearRenderTargetView(m_backBuffer, glm::value_ptr(glm::vec4(0, 0, 0, 1)));
 	m_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 void Dx11Renderer::uploadTexture(JobLoadTexture* job)
@@ -156,13 +159,22 @@ void Dx11Renderer::uploadTexture(JobLoadTexture* job)
 	m_device->CreateShaderResourceView(job->texture->m_dxTexture, &SRVDesc, &job->texture->m_dxResourceView);
 
 }
-void Dx11Renderer::renderModel(Model* model, glm::mat4 modelMatrix, glm::mat4 viewMatrix, glm::mat4 projectionMatrix, Material* overrideMaterial, StandardShader* shader)
+void Dx11Renderer::clearFramebuffer(Framebuffer* framebuffer)
+{
+	m_deviceContext->ClearRenderTargetView(framebuffer->m_renderTextureView, glm::value_ptr(glm::vec4(0, 0.2, 0.4, 1)));
+	m_deviceContext->ClearDepthStencilView(framebuffer->m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+}
+void Dx11Renderer::renderModel(Model* model, glm::mat4 modelMatrix, glm::mat4 viewMatrix, glm::mat4 projectionMatrix,
+	Material* overrideMaterial, StandardShader* shader, Framebuffer* frameBuffer)
 {
 	if (!model)
 		return;
 
-	m_deviceContext->OMSetRenderTargets(1, &m_backBuffer, m_depthStencilView);
-	m_deviceContext->OMSetDepthStencilState(m_depthStencilState, 0);
+	if(frameBuffer)
+		m_deviceContext->OMSetRenderTargets(1, &frameBuffer->m_renderTextureView, frameBuffer->m_depthStencilView);
+	else
+		m_deviceContext->OMSetRenderTargets(1, &m_backBuffer, m_depthStencilView);
+	
 	m_deviceContext->VSSetShader(shader->m_dxVertexShader, 0, 0);
 	m_deviceContext->PSSetShader(shader->m_dxPixelShader, 0, 0);
 	m_deviceContext->IASetInputLayout(shader->m_dxBufferLayout);
@@ -193,9 +205,20 @@ void Dx11Renderer::renderModel(Model* model, glm::mat4 modelMatrix, glm::mat4 vi
 	m_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	m_deviceContext->Draw(model->vertCount, 0);
 }
+void Dx11Renderer::enableDepth(bool enable)
+{
+	if (enable)
+	{
+		m_deviceContext->OMSetDepthStencilState(m_depthStencilState, 0);
+	}
+	else
+	{
+		m_deviceContext->OMSetDepthStencilState(m_depthStencilStateNoDepth, 0);
+	}
+}
 void Dx11Renderer::present()
 {
-	m_swapChain->Present(0, 0);
+	m_swapChain->Present(1, 0);
 }
 void Dx11Renderer::clearColorPick(ColorPickShader* shader)
 {
@@ -208,7 +231,6 @@ void Dx11Renderer::renderColorPickModel(Model* model, glm::mat4 modelMatrix, glm
 		return;
 
 	m_deviceContext->OMSetRenderTargets(1, &shader->m_renderTargetView, m_depthStencilView);
-	m_deviceContext->OMSetDepthStencilState(m_depthStencilState, 0);
 	m_deviceContext->VSSetShader(shader->m_dxVertexShader, 0, 0);
 	m_deviceContext->PSSetShader(shader->m_dxPixelShader, 0, 0);
 	m_deviceContext->IASetInputLayout(shader->m_dxBufferLayout);
@@ -298,7 +320,7 @@ glm::vec3 Dx11Renderer::getColorPickColor(glm::vec2 cursorPosition, ColorPickSha
 }
 
 
-glm::vec3 Dx11Renderer::screenToWorldPosition(glm::vec2 cursorPosition, glm::mat4 viewMatrix, glm::mat4 projectionMatrix)
+glm::vec3 Dx11Renderer::screenToWorldPosition(glm::vec2 cursorPosition, glm::mat4 viewMatrix, glm::mat4 projectionMatrix, Framebuffer* framebuffer)
 {
 	D3D11_TEXTURE2D_DESC desc;
 	ZeroMemory(&desc, sizeof(D3D11_TEXTURE2D_DESC));
@@ -316,7 +338,10 @@ glm::vec3 Dx11Renderer::screenToWorldPosition(glm::vec2 cursorPosition, glm::mat
 	ID3D11Texture2D* texture;
 	HRESULT status = m_device->CreateTexture2D(&desc, nullptr, &texture);
 
-	m_deviceContext->CopyResource(texture, m_depthStencilBuffer);
+	if(framebuffer)
+		m_deviceContext->CopyResource(texture, framebuffer->m_depthStencilTexture);
+	else
+		m_deviceContext->CopyResource(texture, m_depthStencilBuffer);
 
 	D3D11_MAPPED_SUBRESOURCE ms;
 	m_deviceContext->Map(texture, 0, D3D11_MAP_READ, 0, &ms);

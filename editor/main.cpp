@@ -1,125 +1,305 @@
-#include <framework/framework.h>
-#include <vector>
+#include "framework/framework.h"
 #include <thread>
 #include <gtc/matrix_transform.hpp>
 #include <gtx/transform.hpp>
 #include <gtc/type_ptr.hpp>
-#include "gui/c_gui.h"
+#include <gtx/matrix_decompose.hpp>
+#include <chrono>
 
-std::vector<PointLight> lights;
-std::vector<Entity*> entities;
-Camera camera = Camera(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), 40.0f, 0.1f, 1000.0f, 16.0f / 9.0f);
-
-GUI* gui;
-
+Camera camera;
 Entity* selectedEntity;
+Entity* selectedGizmo;
+Renderer* renderer;
+Framebuffer* frameBuffer;
+World* world;
+
+Entity* gizmoXArrow;
+Entity* gizmoYArrow;
+Entity* gizmoZArrow;
+
+glm::vec3 gizmoSelectLocation;
+glm::vec3 gizmoOriginalLocation;
+
+void cameraMovement()
+{
+	float cameraSpeed = 0.3f;
+	float cameraSensitivity = 0.1f;
+
+	if (input::isMouseButtonDown(input::MOUSEBUTTON_RIGHT))
+	{
+		input::lockMouse = true;
+		camera.transform.rotation.x -= input::mouseDelta.y * cameraSensitivity;
+		camera.transform.rotation.y -= input::mouseDelta.x * cameraSensitivity;
+
+		if (input::isKeyDown('W'))
+		{
+			camera.transform.position += camera.getForward() * cameraSpeed;
+		}
+		if (input::isKeyDown('S'))
+		{
+			camera.transform.position -= camera.getForward() * cameraSpeed;
+		}
+		if (input::isKeyDown('A'))
+		{
+			camera.transform.position += camera.getRight() * cameraSpeed;
+		}
+		if (input::isKeyDown('D'))
+		{
+			camera.transform.position -= camera.getRight() * cameraSpeed;
+		}
+	}
+	else
+		input::lockMouse = false;
+}
+
+void selectEntity()
+{
+	if (input::isMouseButtonClicked(input::MOUSEBUTTON_LEFT))
+	{
+		Entity* e = renderer->colorPick(input::mousePosition);
+		if (e) {
+			if (e->m_uid == gizmoXArrow->m_uid || e->m_uid == gizmoYArrow->m_uid || e->m_uid == gizmoZArrow->m_uid)
+				return;
+			selectedEntity = e;
+			if (selectedEntity)
+			{
+				gizmoXArrow->transform.position = selectedEntity->transform.position;
+				gizmoYArrow->transform.position = selectedEntity->transform.position;
+				gizmoZArrow->transform.position = selectedEntity->transform.position;
+			}
+		}
+	}
+}
+
+void setupGizmo()
+{
+	if (!selectedEntity)
+		return;
+	float gizmoSize = 0.004f;
+	float distance;
+
+	distance = glm::distance(gizmoXArrow->transform.position, camera.transform.position);
+	gizmoXArrow->transform.scale = glm::vec3(distance * gizmoSize, distance * gizmoSize, distance * gizmoSize);
+	gizmoYArrow->transform.scale = glm::vec3(distance * gizmoSize, distance * gizmoSize, distance * gizmoSize);
+	gizmoZArrow->transform.scale = glm::vec3(distance * gizmoSize, distance * gizmoSize, distance * gizmoSize);
+}
+
+void gizmoSelect()
+{
+	if (input::isMouseButtonClicked(input::MOUSEBUTTON_LEFT))
+	{
+		Entity* e = renderer->colorPick(input::mousePosition);
+
+		if (e)
+		{
+			if (e->m_uid == gizmoXArrow->m_uid)
+			{
+				renderer->clearFramebuffer(frameBuffer);
+
+				Entity* debugPlane = world->createEntity("debugplane", Transform(gizmoXArrow->transform.position, glm::vec3(-90, 0, 0), glm::vec3(1000, 1000, 1000)));
+				RenderComponent* rc = new RenderComponent();
+				rc->setModel(renderer->getModel("debugplane"));
+				debugPlane->addComponent(rc);
+
+				debugPlane->transform.rotation.x = -camera.transform.rotation.x + 180;
+
+				renderer->renderModel(((RenderComponent*)debugPlane->getComponent(Component::COMPONENT_TYPE_RENDER_COMPONENT))->getModel(),
+					Transform::matrixFromTransform(debugPlane->transform, true), camera.getViewMatrix(), camera.getPerspectiveMatrix(),
+					nullptr, frameBuffer, true);
+
+				world->destoryEntity(debugPlane->m_uid);
+
+				selectedGizmo = gizmoXArrow;
+
+				gizmoOriginalLocation = gizmoXArrow->transform.position;
+				gizmoSelectLocation = renderer->screenToWorldPosition(input::mousePosition, frameBuffer);
+
+			}
+
+			if (e->m_uid == gizmoYArrow->m_uid)
+			{
+				renderer->clearFramebuffer(frameBuffer);
+
+				Entity* debugPlane = world->createEntity("debugplane", Transform(gizmoYArrow->transform.position, glm::vec3(0, 0, 0), glm::vec3(1000, 1000, 1000)));
+				RenderComponent* rc = new RenderComponent();
+				rc->setModel(renderer->getModel("debugplane"));
+				debugPlane->addComponent(rc);
+
+				debugPlane->transform.rotation.y = -camera.transform.rotation.y - 90;
+
+				renderer->renderModel(((RenderComponent*)debugPlane->getComponent(Component::COMPONENT_TYPE_RENDER_COMPONENT))->getModel(),
+					Transform::matrixFromTransform(debugPlane->transform, true), camera.getViewMatrix(), camera.getPerspectiveMatrix(),
+					nullptr, frameBuffer, true);
+
+				world->destoryEntity(debugPlane->m_uid);
+
+				selectedGizmo = gizmoYArrow;
+
+				gizmoOriginalLocation = gizmoYArrow->transform.position;
+				gizmoSelectLocation = renderer->screenToWorldPosition(input::mousePosition, frameBuffer);
+
+			}
+
+			if (e->m_uid == gizmoZArrow->m_uid)
+			{
+				renderer->clearFramebuffer(frameBuffer);
+
+				Entity* debugPlane = world->createEntity("debugplane", Transform(gizmoZArrow->transform.position, glm::vec3(-90, 0, 0), glm::vec3(1000, 1000, 1000)));
+				RenderComponent* rc = new RenderComponent();
+				rc->setModel(renderer->getModel("debugplane"));
+				debugPlane->addComponent(rc);
+
+				debugPlane->transform.rotation.z = -camera.transform.rotation.y - 90;
+
+				renderer->renderModel(((RenderComponent*)debugPlane->getComponent(Component::COMPONENT_TYPE_RENDER_COMPONENT))->getModel(),
+					Transform::matrixFromTransform(debugPlane->transform, true), camera.getViewMatrix(), camera.getPerspectiveMatrix(),
+					nullptr, frameBuffer, true);
+
+				world->destoryEntity(debugPlane->m_uid);
+
+				selectedGizmo = gizmoZArrow;
+
+				gizmoOriginalLocation = gizmoZArrow->transform.position;
+				gizmoSelectLocation = renderer->screenToWorldPosition(input::mousePosition, frameBuffer);
+
+			}
+
+		}
+		else
+		{
+			selectedGizmo = nullptr;
+			selectedEntity = nullptr;
+			gizmoXArrow->transform.position.y = -100000;
+			gizmoYArrow->transform.position.y = -100000;
+			gizmoZArrow->transform.position.y = -100000;
+		}
+		
+	}
+}
+
+void gizmoDrag()
+{
+	if (input::isMouseButtonDown(input::MOUSEBUTTON_LEFT) && selectedEntity && selectedGizmo)
+	{
+		if (selectedGizmo == gizmoXArrow)
+		{
+			glm::vec3 newDepthPos = renderer->screenToWorldPosition(input::mousePosition, frameBuffer);
+			float newX = gizmoOriginalLocation.x + (newDepthPos.x - gizmoSelectLocation.x);
+			gizmoXArrow->transform.position.x = newX;
+			gizmoYArrow->transform.position.x = newX;
+			gizmoZArrow->transform.position.x = newX;
+			selectedEntity->transform.position.x = newX;
+		}
+
+		if (selectedGizmo == gizmoYArrow)
+		{
+			glm::vec3 newDepthPos = renderer->screenToWorldPosition(input::mousePosition, frameBuffer);
+			float newY = gizmoOriginalLocation.y + (newDepthPos.y - gizmoSelectLocation.y);
+			gizmoXArrow->transform.position.y = newY;
+			gizmoYArrow->transform.position.y = newY;
+			gizmoZArrow->transform.position.y = newY;
+			selectedEntity->transform.position.y = newY;
+		}
+
+		if (selectedGizmo == gizmoZArrow)
+		{
+			glm::vec3 newDepthPos = renderer->screenToWorldPosition(input::mousePosition, frameBuffer);
+			float newZ = gizmoOriginalLocation.z + (newDepthPos.z - gizmoSelectLocation.z);
+			gizmoXArrow->transform.position.z = newZ;
+			gizmoYArrow->transform.position.z = newZ;
+			gizmoZArrow->transform.position.z = newZ;
+			selectedEntity->transform.position.z = newZ;
+		}
+	}
+	else
+		selectedGizmo = nullptr;
+}
+
+void planeDebug()
+{
+	Entity* debugPlane = world->createEntity("debugplane", Transform(gizmoXArrow->transform.position, glm::vec3(-90, 0, 0), glm::vec3(1, 1, 1)));
+	RenderComponent* rc = new RenderComponent();
+	rc->setModel(renderer->getModel("debugplane"));
+	debugPlane->addComponent(rc);
+
+	debugPlane->transform.rotation.z = -camera.transform.rotation.y - 90;
+
+	renderer->renderModel(((RenderComponent*)debugPlane->getComponent(Component::COMPONENT_TYPE_RENDER_COMPONENT))->getModel(),
+		Transform::matrixFromTransform(debugPlane->transform, true), camera.getViewMatrix(), camera.getPerspectiveMatrix(),
+		nullptr, nullptr, true);
+
+	world->destoryEntity(debugPlane->m_uid);
+}
 
 int main()
 {
 	std::thread assetThread = asset::assetInit();
 	filesystem::registerPlugin("game");
-
-	//init
 	screen::initializeScreen();
-	Renderer* renderer = new Renderer(1280, 720);
-	PointLight pl;
-	pl.color = glm::vec3(1, 0, 0);
-	lights.push_back(pl);
-	pl.color = glm::vec3(0, 0, 1);
-	pl.position = glm::vec3(0, 0, -30);
-	lights.push_back(pl);
 
-	StaticMeshEntity* g = new StaticMeshEntity("yarrow", Transform(glm::vec3(0, 0, -15)));
-	g->getComponent<RenderComponent*>()->setModel(renderer->getModel("yarrow"));
-	//entities.push_back(g);
+	world = new World();
+	renderer = new Renderer(world);
+	renderer->initialize(screen::windowHandle, 1280, 720);
+	frameBuffer = renderer->createFramebuffer();
 
-	StaticMeshEntity * ball = new StaticMeshEntity("woodenball", Transform(glm::vec3(0, 0, -15)));
-	ball->getComponent<RenderComponent*>()->setModel(renderer->getModel("Woodball"));
-	entities.push_back(ball);
-	StaticMeshEntity * debugPlane = new StaticMeshEntity("debugplane", Transform(glm::vec3(0, -1, 0), glm::vec3(), glm::vec3(100, 100, 100)));
-	debugPlane->getComponent<RenderComponent*>()->setModel(renderer->getModel("debugplane"));
-	entities.push_back(debugPlane);
+	//The debugplane model should always remain in memeory
+	renderer->getModel("debugplane");
 
-	
+	gizmoXArrow = world->createEntity("gizmoXArrow", Transform(glm::vec3(0, 0, 0), glm::vec3(0, 90, 0), glm::vec3(0.01, 0.01, 0.01)));
+	RenderComponent* gizmoXArrowRc = new RenderComponent();
+	gizmoXArrowRc->setModel(renderer->getModel("xarrow"));
+	//gizmoXArrowRc->enabled = false;
+	gizmoXArrowRc->m_onTop = true;
+	gizmoXArrow->addComponent(gizmoXArrowRc);
+	gizmoYArrow = world->createEntity("gizmoYArrow", Transform(glm::vec3(0, 0, 0), glm::vec3(-90, 0, 0), glm::vec3(0.01, 0.01, 0.01)));
+	RenderComponent* gizmoYArrowRc = new RenderComponent();
+	gizmoYArrowRc->setModel(renderer->getModel("yarrow"));
+	//gizmoYArrowRc->enabled = false;
+	gizmoYArrowRc->m_onTop = true;
+	gizmoYArrow->addComponent(gizmoYArrowRc);
+	gizmoZArrow = world->createEntity("gizmoZArrow", Transform(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.01, 0.01, 0.01)));
+	RenderComponent* gizmoZArrowRc = new RenderComponent();
+	gizmoZArrowRc->setModel(renderer->getModel("zarrow"));
+	//gizmoZArrowRc->enabled = false;
+	gizmoZArrowRc->m_onTop = true;
+	gizmoZArrow->addComponent(gizmoZArrowRc);
 
-	gui = new GUI();
-	gui->renderWindow->camera = &camera;
+	Entity* e = world->createEntity("MyEntity", Transform(glm::vec3(0, 0, 15), glm::vec3(45, 45, 0), glm::vec3(1, 1, 1)));
+	RenderComponent* rc = new RenderComponent();
+	rc->setModel(renderer->getModel("Cube"));
+	e->addComponent(rc);
 
-	
+	Entity* plane = world->createEntity("plane", Transform(glm::vec3(0.0f, 1.0f, 10.0f), glm::vec3(0, 180, 0), glm::vec3(1.0, 1.0, 1.0)));
+	RenderComponent* planerc = new RenderComponent();
+	planerc->setModel(renderer->getModel("debugplane"));
+	plane->addComponent(planerc);
+
+
+	Entity* ball = world->createEntity("ball", Transform(glm::vec3(0.0f, 1.0f, 10.0f), glm::vec3(0, 0, 0), glm::vec3(1.0, 1.0, 1.0)));
+	RenderComponent* ballrc = new RenderComponent();
+	ballrc->setModel(renderer->getModel("woodball"));
+	ball->addComponent(ballrc);
+
+	camera = Camera(glm::vec3(0, 0, 0), glm::vec3(0, 90, 0), glm::radians(40.0f), 0.1f, 1000.0f, (float)renderer->m_width / (float)renderer->m_height);
 
 	while (!screen::terminated)
 	{
 		screen::updateScreen();
-		renderer->prepFrame();
+		cameraMovement();
+		selectEntity();
+		setupGizmo();
+		gizmoSelect();
+		gizmoDrag();
 
-		if (gui->renderWindow->amLooking)
-		{
-			float sensitivity = 0.1;
-			camera.transform.rotation.y += input::mouseDelta.x * sensitivity;
-			camera.transform.rotation.x += input::mouseDelta.y * sensitivity;
-
-			if (input::isKeyDown('W'))
-			{
-				camera.transform.position -= camera.getForward();
-			}
-			if (input::isKeyDown('S'))
-			{
-				camera.transform.position += camera.getForward();
-			}
-			if (input::isKeyDown('A'))
-			{
-				camera.transform.position += glm::cross(camera.getForward(), glm::vec3(0, 1, 0));
-			}
-			if (input::isKeyDown('D'))
-			{
-				camera.transform.position -= glm::cross(camera.getForward(), glm::vec3(0, 1, 0));
-			}
-		}
+		//plane->transform.rotation.y =  -camera.transform.rotation.y - 90;
 
 
-		renderer->setFrameBuffer(gui->renderWindow->sceneFrameBuffer);
-		renderer->setViewMatrix(camera.getViewMatrix());
-		renderer->setProjectionMatrix(glm::perspective(glm::radians(camera.fov), camera.aspect, camera.nearPlane, camera.farPlane));
-		renderer->setLightsVector(lights);
-		renderer->prepFrame();
-		renderer->drawEntities(entities);
+		renderer->setCamera(camera);
+		renderer->render();
+		//planeDebug();
+		//LOGDEBUG(renderer->screenToWorldPosition(input::mousePosition, nullptr).x);
 
-		Transform t = Transform(glm::vec3(0, 1, -15));
-		glm::mat4 modelMatrix = renderer->matrixFromTransform(t, true);
-		glm::mat4 projMatrix = glm::perspective(glm::radians(camera.fov), camera.aspect, camera.nearPlane, camera.farPlane);
-		glm::mat4 viewMatrix = camera.getViewMatrix();
-
-		SHADER_PROPERTY props[3];
-		props[0].name = "projMatrix";
-		props[0].type = SHADER_PROPERTY_TYPE_MAT4;
-		props[0].value = glm::value_ptr(projMatrix);
-
-		props[1].name = "transMatrix";
-		props[1].type = SHADER_PROPERTY_TYPE_MAT4;
-		props[1].value = glm::value_ptr(modelMatrix);
-
-		props[2].name = "viewMatrix";
-		props[2].type = SHADER_PROPERTY_TYPE_MAT4;
-		props[2].value = glm::value_ptr(viewMatrix);
-
-
-		renderer->renderModel(renderer->getModel("Woodball"), renderer->shaderManager.getShaderByName("standard"), 3, props);
-
-		renderer->setFrameBuffer(NULL);
-
-		gui->drawWindow();
-
-
-		/*if (gui->renderWindow->leftClicked)
-		{
-			selectedEntity = renderer->entityColorPick(entities, gui->renderWindow->localCursorPosition, glm::vec2(gui->renderWindow->windowSize.x, gui->renderWindow->windowSize.y));
-			if(selectedEntity)
-				LOGDEBUG(selectedEntity->name);
-		}*/
-
-		//LOGDEBUG(gui->renderWindow->localCursorPosition.y);
-
-		screen::swapBuffers();
+		renderer->present();
 	}
 
 
