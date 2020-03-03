@@ -97,6 +97,9 @@ void Renderer::render()
 
 	for (std::pair<EntityUid, Entity*> pair : m_world->m_entityMap)
 	{
+		if (!pair.second->getComponent(Component::COMPONENT_TYPE_RENDER_COMPONENT))
+			continue;
+
 		if (pair.second->getComponent(Component::COMPONENT_TYPE_RENDER_COMPONENT)->enabled)
 		{
 			RenderComponent* rc = dynamic_cast<RenderComponent*>(pair.second->getComponent(Component::COMPONENT_TYPE_RENDER_COMPONENT));
@@ -108,7 +111,7 @@ void Renderer::render()
 				onTopModels.push_back(pair.second);
 				continue;
 			}
-			glm::mat4 mm = Transform::matrixFromTransform(pair.second->transform, true);
+			glm::mat4 mm = pair.second->getModelMatrix();
 			m_dx11Renderer.renderModel(m, mm, m_camera.getViewMatrix(), m_camera.getPerspectiveMatrix(), NULL, m_standardShader, nullptr);
 		}
 	}
@@ -118,7 +121,7 @@ void Renderer::render()
 	{
 		RenderComponent* rc = dynamic_cast<RenderComponent*>(e->getComponent(Component::COMPONENT_TYPE_RENDER_COMPONENT));
 		Model* m = rc->getModel();
-		glm::mat4 mm = Transform::matrixFromTransform(e->transform, true);
+		glm::mat4 mm = e->getModelMatrix();
 		m_dx11Renderer.renderModel(m, mm, m_camera.getViewMatrix(), m_camera.getPerspectiveMatrix(), NULL, m_standardShader, nullptr);
 	}
 	m_dx11Renderer.enableDepth(true);
@@ -214,6 +217,9 @@ Entity* Renderer::colorPick(glm::vec2 cursorPosition)
 
 	for (std::pair<EntityUid, Entity*> pair : m_world->m_entityMap)
 	{
+		if (!pair.second->getComponent(Component::COMPONENT_TYPE_RENDER_COMPONENT))
+			continue;
+
 		RenderComponent* rc = dynamic_cast<RenderComponent*>(pair.second->getComponent(Component::COMPONENT_TYPE_RENDER_COMPONENT));
 		if (!rc)
 			continue;
@@ -224,23 +230,23 @@ Entity* Renderer::colorPick(glm::vec2 cursorPosition)
 		}
 
 		glm::vec3 color = nextColor;
-		nextColor.z += 0.01f;
-		if (nextColor.z == 1.01f)
+		nextColor.z += 0.02f;
+		if (nextColor.z > 1.00f)
 		{
 			nextColor.z = 0.0f;
-			nextColor.y += 0.01f;
+			nextColor.y += 0.02f;
 		}
-		if (nextColor.y == 1.01f)
+		if (nextColor.y > 1.00f)
 		{
 			nextColor.y = 0.0f;
-			nextColor.x += 0.01f;
+			nextColor.x += 0.02f;
 		}
 
 		ColorEntityPair cep = { color, pair.second };
 		colorEntities.push_back(cep);
 
 		Model* m = rc->getModel();
-		glm::mat4 mm = Transform::matrixFromTransform(pair.second->transform, true);
+		glm::mat4 mm = pair.second->getModelMatrix();
 		//m_dx11Renderer.renderModel(m, mm, m_camera.getViewMatrix(), m_camera.getPerspectiveMatrix(), NULL, m_standardShader);
 		//DO COLORED RENDER
 		m_dx11Renderer.renderColorPickModel(m, mm, m_camera.getViewMatrix(), m_camera.getPerspectiveMatrix(), m_colorPickShader, color);
@@ -268,7 +274,7 @@ Entity* Renderer::colorPick(glm::vec2 cursorPosition)
 
 		RenderComponent* rc = dynamic_cast<RenderComponent*>(e->getComponent(Component::COMPONENT_TYPE_RENDER_COMPONENT));
 		Model* m = rc->getModel();
-		glm::mat4 mm = Transform::matrixFromTransform(e->transform, true);
+		glm::mat4 mm = e->getModelMatrix();
 		m_dx11Renderer.renderColorPickModel(m, mm, m_camera.getViewMatrix(), m_camera.getPerspectiveMatrix(), m_colorPickShader, color);
 	}
 	m_dx11Renderer.enableDepth(true);

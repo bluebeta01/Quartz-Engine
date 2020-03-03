@@ -12,10 +12,11 @@ class Entity
 {
 public:
 	Transform transform;
-	std::string name;
+	std::string m_name;
 	EntityUid m_uid;
 	static EntityUid m_nextUid;
 	std::unordered_map<Component::COMPONENT_TYPE, Component*> m_components;
+	std::vector<Entity*> m_children;
 
 	Entity(std::string name = "noName", Transform transform = Transform(glm::vec3(0,0,0), glm::vec3(0,0,0), glm::vec3(1,1,1)));
 	~Entity();
@@ -23,4 +24,16 @@ public:
 	void addComponent(Component* component);
 	Component* getComponent(Component::COMPONENT_TYPE componentType);
 	void destroyComponent(Component::COMPONENT_TYPE componentType);
+
+	glm::vec3 getWorldPosition();
+	glm::mat4 getModelMatrix();
+
+	void setWorldPosition(glm::vec3 position);
+
+	void removeChild(Entity* child);
+	Entity* getParent();
+	void addChild(Entity* child);
+
+private:
+	Entity* m_parent = nullptr;
 };
