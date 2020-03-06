@@ -33,6 +33,8 @@ Model* Renderer::getModel(std::string name)
 		return m;
 
 	Model* model = new Model();
+	model->name = name;
+	m_modelManager.registerModel(model);
 	JobLoadModel* jobLoadModel = new JobLoadModel();
 	jobLoadModel->nameOfModelToLoad = name;
 	jobLoadModel->model = model;

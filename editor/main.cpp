@@ -73,19 +73,7 @@ int main()
 
 	//plane->addChild(ball);
 
-	for (int x = 0; x < 10; x++)
-	{
-		for (int y = 0; y < 10; y++)
-		{
-			for (int z = 0; z < 10; z++)
-			{
-				Entity* ball = world->createEntity("ball", Transform(glm::vec3(x * 3, y * 3, z * 3), glm::vec3(0, 0, 0), glm::vec3(1.0, 1.0, 1.0)));
-				RenderComponent* ballrc = new RenderComponent();
-				ballrc->setModel(renderer->getModel("woodball"));
-				ball->addComponent(ballrc);
-			}
-		}
-	}
+	
 
 	camera = Camera(glm::vec3(0, 0, 0), glm::vec3(0, 90, 0), glm::radians(40.0f), 0.1f, 1000.0f, (float)renderer->m_width / (float)renderer->m_height);
 
@@ -98,6 +86,24 @@ int main()
 		renderer->setCamera(camera);
 		renderer->render();
 		renderer->present();
+
+
+		if (input::isKeyPressed('P'))
+		{
+			for (int x = 0; x < 20; x++)
+			{
+				for (int y = 0; y < 20; y++)
+				{
+					for (int z = 0; z < 20; z++)
+					{
+						Entity* ball = world->createEntity("ball", Transform(glm::vec3(x * 3, y * 3, z * 3), glm::vec3(0, 0, 0), glm::vec3(1.0, 1.0, 1.0)));
+						RenderComponent* ballrc = new RenderComponent();
+						ballrc->setModel(renderer->getModel("woodball"));
+						ball->addComponent(ballrc);
+					}
+				}
+			}
+		}
 	}
 
 
