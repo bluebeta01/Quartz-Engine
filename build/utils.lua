@@ -4,17 +4,17 @@ utils =
 MakeModel = function()
 	local model = {
 		GetName = function(self)
-			return c_getModelName(self.uid)
+			return self.name
 		end,
 
 		GetMaterial = function(self)
 			material = utils.MakeMaterial()
-			material.uid = c_getModelMaterial(self.uid)
+			material.name = c_getModelMaterial(self.name)
 			return material
 		end,
 
 		SetMaterial = function(self, material)
-			c_setModelMaterial(self.uid, material.uid)
+			c_setModelMaterial(self.name, material.name)
 		end
 	}
 	return model
@@ -23,16 +23,16 @@ end,
 MakeMaterial = function()
 	local material = {
 		GetName = function(self)
-			return c_getMaterialName(self.uid)
+			return self.name
 		end,
 
-		SetTextureSlot = function(self, slotName)
-			c_setMaterialTextureSlot(self.uid, slotName)
+		SetTextureSlot = function(self, slotName, texture)
+			c_setMaterialTextureSlot(self.name, slotName, texture.name)
 		end,
 
 		GetTextureSlot = function(self, slotName)
 			texture = utils.MakeTexture()
-			texture.uid = c_getMaterialTextureSlot(self.uid, slotName)
+			texture.name = c_getMaterialTextureSlot(self.name, slotName)
 			return texture
 		end
 	}
@@ -42,7 +42,7 @@ end,
 MakeTexture = function()
 	local texture = {
 		GetName = function(self)
-			return c_getTextureName(self.uid)
+			return self.name
 		end
 	}
 	return texture
@@ -51,30 +51,30 @@ end,
 MakeComponent = function()
 	local component = {
 		GetEnabled = function(self)
-			return c_getComponentEnabled(self.uid, self.type)
+			return c_getComponentEnabled(self.uid)
 		end,
 
 		GetModel = function(self)
-			uid = c_getRenderComponentModel(self.uid)
+			name = c_getRenderComponentModel(self.uid)
 			model = utils.MakeModel()
-			model.uid = uid
+			model.name = name
 			return model
 		end,
 
-		SetModel = function(model)
-			c_setRenderComponentModel(uid, model.uid)
+		SetModel = function(self, model)
+			c_setRenderComponentModel(self.uid, model.name)
 			return
 		end,
 
 		GetMaterial = function(self)
-			uid = c_getRenderComponentMaterial(self.uid)
+			name = c_getRenderComponentMaterial(self.uid)
 			materail = utils.MakeMaterial()
-			material.uid = uid
+			material.name = name
 			return material
 		end,
 
 		SetMaterial = function(self, material)
-			c_setRenderComponentMaterial(self.uid, material.uid)
+			c_setRenderComponentMaterial(self.uid, material.name)
 		end
 
 	}

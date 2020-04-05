@@ -21,9 +21,15 @@
     <ClCompile Include="c_gizmo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="c_editor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="c_gizmo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="c_editor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

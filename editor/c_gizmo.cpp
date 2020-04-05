@@ -1,12 +1,22 @@
 #include "c_gizmo.h"
 
-extern Renderer* renderer;
-extern Camera camera;
-extern Framebuffer* frameBuffer;
-extern World* world;
+//extern Renderer* renderer;
+//extern Camera camera;
+//extern Framebuffer* frameBuffer;
+//extern World* world;
 
 Gizmo::Gizmo()
 {
+	
+}
+
+void Gizmo::initialize(Renderer* renderer, Camera* camera, World* world)
+{
+	this->renderer = renderer;
+	this->camera = camera;
+	this->world = world;
+
+	frameBuffer = renderer->createFramebuffer();
 	createGizmo();
 }
 
@@ -16,35 +26,32 @@ void Gizmo::update()
 	setupGizmo();
 	gizmoSelect();
 	gizmoDrag();
+
+	if (m_selectedEntity)
+		m_gizmo->setWorldPosition(m_selectedEntity->getWorldPosition());
 }
 
 void Gizmo::createGizmo()
 {
-	m_transformGizmoXArrow = world->createEntity("gizmoXArrow", Transform(glm::vec3(0, 0, 0), glm::vec3(0, 90, 0), glm::vec3(0.01, 0.01, 0.01)));
-	RenderComponent* gizmoXArrowRc = new RenderComponent();
-	gizmoXArrowRc->setModel(renderer->getModel("xarrow"));
-	//gizmoXArrowRc->enabled = false;
-	gizmoXArrowRc->m_onTop = true;
-	m_transformGizmoXArrow->addComponent(gizmoXArrowRc);
-	m_transformGizmoYArrow = world->createEntity("gizmoYArrow", Transform(glm::vec3(0, 0, 0), glm::vec3(-90, 0, 0), glm::vec3(0.01, 0.01, 0.01)));
-	RenderComponent* gizmoYArrowRc = new RenderComponent();
-	gizmoYArrowRc->setModel(renderer->getModel("yarrow"));
-	//gizmoYArrowRc->enabled = false;
-	gizmoYArrowRc->m_onTop = true;
-	m_transformGizmoYArrow->addComponent(gizmoYArrowRc);
-	m_transformGizmoZArrow = world->createEntity("gizmoZArrow", Transform(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.01, 0.01, 0.01)));
-	RenderComponent* gizmoZArrowRc = new RenderComponent();
-	gizmoZArrowRc->setModel(renderer->getModel("zarrow"));
-	//gizmoZArrowRc->enabled = false;
-	gizmoZArrowRc->m_onTop = true;
-	m_transformGizmoZArrow->addComponent(gizmoZArrowRc);
-
 	m_gizmo = world->createEntity("Gizmo");
 	m_transformGizmo = world->createEntity("Transformation Gizmo");
 	m_gizmo->addChild(m_transformGizmo);
+
+
+	m_transformGizmoXArrow = world->createEntity("gizmoXArrow", Transform(glm::vec3(0, 0, 0), glm::vec3(0, 90, 0), glm::vec3(0.01, 0.01, 0.01)));
 	m_transformGizmo->addChild(m_transformGizmoXArrow);
+	RenderComponent* rc = dynamic_cast<RenderComponent*>(m_transformGizmoXArrow->addComponent(new RenderComponent(renderer->getModel("xarrow"))));
+	rc->m_onTop = true;
+
+	m_transformGizmoYArrow = world->createEntity("gizmoYArrow", Transform(glm::vec3(0, 0, 0), glm::vec3(-90, 0, 0), glm::vec3(0.01, 0.01, 0.01)));
 	m_transformGizmo->addChild(m_transformGizmoYArrow);
+	rc = dynamic_cast<RenderComponent*>(m_transformGizmoYArrow->addComponent(new RenderComponent(renderer->getModel("yarrow"))));
+	rc->m_onTop = true;
+
+	m_transformGizmoZArrow = world->createEntity("gizmoZArrow", Transform(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.01, 0.01, 0.01)));
 	m_transformGizmo->addChild(m_transformGizmoZArrow);
+	rc = dynamic_cast<RenderComponent*>(m_transformGizmoZArrow->addComponent(new RenderComponent(renderer->getModel("zarrow"))));
+	rc->m_onTop = true;
 }
 
 void Gizmo::selectEntity()
@@ -74,7 +81,7 @@ void Gizmo::setupGizmo()
 	float gizmoSize = 0.004f;
 	float distance;
 
-	distance = glm::distance(m_gizmo->getWorldPosition(), camera.transform.position);
+	distance = glm::distance(m_gizmo->getWorldPosition(), camera->transform.position);
 	m_transformGizmoXArrow->transform.scale = glm::vec3(distance * gizmoSize, distance * gizmoSize, distance * gizmoSize);
 	m_transformGizmoYArrow->transform.scale = glm::vec3(distance * gizmoSize, distance * gizmoSize, distance * gizmoSize);
 	m_transformGizmoZArrow->transform.scale = glm::vec3(distance * gizmoSize, distance * gizmoSize, distance * gizmoSize);
@@ -93,21 +100,22 @@ void Gizmo::gizmoSelect()
 				renderer->clearFramebuffer(frameBuffer);
 
 				Entity* debugPlane = world->createEntity("debugplane", Transform(m_gizmo->getWorldPosition(), glm::vec3(-90, 0, 0), glm::vec3(1000, 1000, 1000)));
-				RenderComponent* rc = new RenderComponent();
+				debugPlane->addComponent(new RenderComponent(renderer->getModel("debugplane")));
+				/*RenderComponent* rc = new RenderComponent();
 				rc->setModel(renderer->getModel("debugplane"));
-				debugPlane->addComponent(rc);
+				debugPlane->addComponent(rc);*/
 
-				float d = debugPlane->transform.position.z - camera.transform.position.z;
+				float d = debugPlane->transform.position.z - camera->transform.position.z;
 				if (signbit(d))
-					debugPlane->transform.rotation.x = camera.transform.rotation.x;
+					debugPlane->transform.rotation.x = camera->transform.rotation.x;
 				else
-					debugPlane->transform.rotation.x = -camera.transform.rotation.x;
+					debugPlane->transform.rotation.x = -camera->transform.rotation.x;
 
 				renderer->renderModel(((RenderComponent*)debugPlane->getComponent(Component::COMPONENT_TYPE_RENDER_COMPONENT))->getModel(),
-					Transform::matrixFromTransform(debugPlane->transform, true), camera.getViewMatrix(), camera.getPerspectiveMatrix(),
+					Transform::matrixFromTransform(debugPlane->transform, true), camera->getViewMatrix(), camera->getPerspectiveMatrix(),
 					nullptr, frameBuffer, true);
 
-				world->destoryEntity(debugPlane->m_uid);
+				world->destoryEntity(debugPlane);
 
 				m_selectedGizmo = m_transformGizmoXArrow;
 
@@ -120,21 +128,22 @@ void Gizmo::gizmoSelect()
 				renderer->clearFramebuffer(frameBuffer);
 
 				Entity* debugPlane = world->createEntity("debugplane", Transform(m_gizmo->getWorldPosition(), glm::vec3(0, 0, 0), glm::vec3(1000, 1000, 1000)));
-				RenderComponent* rc = new RenderComponent();
+				debugPlane->addComponent(new RenderComponent(renderer->getModel("debugplane")));
+				/*RenderComponent* rc = new RenderComponent();
 				rc->setModel(renderer->getModel("debugplane"));
-				debugPlane->addComponent(rc);
+				debugPlane->addComponent(rc);*/
 
-				debugPlane->transform.rotation.y = -camera.transform.rotation.y - 90;
+				debugPlane->transform.rotation.y = -camera->transform.rotation.y - 90;
 
 				renderer->renderModel(((RenderComponent*)debugPlane->getComponent(Component::COMPONENT_TYPE_RENDER_COMPONENT))->getModel(),
-					Transform::matrixFromTransform(debugPlane->transform, true), camera.getViewMatrix(), camera.getPerspectiveMatrix(),
+					Transform::matrixFromTransform(debugPlane->transform, true), camera->getViewMatrix(), camera->getPerspectiveMatrix(),
 					nullptr, frameBuffer, true);
 
-				world->destoryEntity(debugPlane->m_uid);
+				world->destoryEntity(debugPlane);
 
 				m_selectedGizmo = m_transformGizmoYArrow;
 
-				m_gizmoSelectLocation = renderer->screenToWorldPosition(input::mousePosition, frameBuffer);
+				m_gizmoSelectLocation = renderer->screenToWorldPosition(input::mousePosition, frameBuffer) - m_gizmo->getWorldPosition();
 
 			}
 
@@ -143,25 +152,26 @@ void Gizmo::gizmoSelect()
 				renderer->clearFramebuffer(frameBuffer);
 
 				Entity* debugPlane = world->createEntity("debugplane", Transform(m_gizmo->getWorldPosition(), glm::vec3(-90, 0, 0), glm::vec3(1000, 1000, 1000)));
-				RenderComponent* rc = new RenderComponent();
+				debugPlane->addComponent(new RenderComponent(renderer->getModel("debugplane")));
+				/*RenderComponent* rc = new RenderComponent();
 				rc->setModel(renderer->getModel("debugplane"));
-				debugPlane->addComponent(rc);
+				debugPlane->addComponent(rc);*/
 
-				float d = debugPlane->transform.position.x - camera.transform.position.x;
+				float d = debugPlane->transform.position.x - camera->transform.position.x;
 				if (signbit(d))
-					debugPlane->transform.rotation.z = -camera.transform.rotation.x + 90;
+					debugPlane->transform.rotation.z = -camera->transform.rotation.x + 90;
 				else
-					debugPlane->transform.rotation.z = camera.transform.rotation.x + 90;
+					debugPlane->transform.rotation.z = camera->transform.rotation.x + 90;
 
 				renderer->renderModel(((RenderComponent*)debugPlane->getComponent(Component::COMPONENT_TYPE_RENDER_COMPONENT))->getModel(),
-					Transform::matrixFromTransform(debugPlane->transform, true), camera.getViewMatrix(), camera.getPerspectiveMatrix(),
+					Transform::matrixFromTransform(debugPlane->transform, true), camera->getViewMatrix(), camera->getPerspectiveMatrix(),
 					nullptr, frameBuffer, true);
 
-				world->destoryEntity(debugPlane->m_uid);
+				world->destoryEntity(debugPlane);
 
 				m_selectedGizmo = m_transformGizmoZArrow;
 
-				m_gizmoSelectLocation = renderer->screenToWorldPosition(input::mousePosition, frameBuffer);
+				m_gizmoSelectLocation = renderer->screenToWorldPosition(input::mousePosition, frameBuffer) - m_gizmo->getWorldPosition();
 
 			}
 
