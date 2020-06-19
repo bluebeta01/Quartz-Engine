@@ -45,6 +45,5 @@ glm::vec3 Camera::getRight()
 
 glm::mat4 Camera::getPerspectiveMatrix()
 {
-	return glm::perspectiveFovLH(fov, (float)GameWindow::s_clientSize.x, (float)GameWindow::s_clientSize.y, nearPlane, farPlane);
-	//return glm::perspective(glm::radians(fov), aspect, nearPlane, farPlane);
+	return glm::perspectiveFovLH(fov, (float)GameWindow::s_renderAreaSize.x, (float)GameWindow::s_renderAreaSize.y, nearPlane, farPlane);
 }

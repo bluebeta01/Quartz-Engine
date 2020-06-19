@@ -10,8 +10,8 @@
 class JobLoadModel : public Job
 {
 public:
-	Model * model;
 	std::string nameOfModelToLoad;
+	Model * model;
 	ModelData* modelData;
 
 	~JobLoadModel()
@@ -23,8 +23,8 @@ public:
 class JobLoadTexture : public Job
 {
 public:
-	Texture * texture;
 	std::string nameOfTextureToLoad;
+	Texture * texture;
 	TextureData * textureData;
 
 	~JobLoadTexture()
@@ -36,8 +36,8 @@ public:
 class JobLoadMaterial : public Job
 {
 public:
-	Material * material;
 	std::string nameOfMaterialToLoad;
+	Material * material;
 	MaterialData * materialData;
 
 	~JobLoadMaterial()

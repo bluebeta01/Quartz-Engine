@@ -8,6 +8,7 @@ public:
 	ID3D11Buffer* m_buffer = nullptr;
 	ID3D11RenderTargetView* m_renderTargetView;
 	ID3D11Texture2D* m_renderTexture = nullptr;
+
 	ColorPickShader(ID3D11Device* device);
 	void screenResize(int width, int height);
 

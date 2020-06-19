@@ -6,16 +6,6 @@ RenderComponent::RenderComponent(Model* model) : Component(COMPONENT_TYPE_RENDER
 	setModel(model);
 }
 
-RenderComponent::~RenderComponent()
-{
-
-}
-
-void RenderComponent::update()
-{
-
-}
-
 void RenderComponent::setModel(Model* model)
 {
 	this->model = model;

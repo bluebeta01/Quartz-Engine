@@ -6,6 +6,5 @@ class CameraComponent : public Component
 public:
 	Camera m_camera;
 	CameraComponent();
-	~CameraComponent();
 	void update();
 };

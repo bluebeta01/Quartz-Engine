@@ -16,8 +16,6 @@ Engine::Engine() : m_world(), m_renderer(&m_world)
 	{
 		m_renderer.initialize();
 	}
-
-
 }
 
 void Engine::tick()

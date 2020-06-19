@@ -1,11 +1,6 @@
 #include "pch.h"
 #include "c_world.h"
 
-World::World()
-{
-
-}
-
 Entity* World::createEntity(std::string name, Transform transform)
 {
 	Entity* e = new Entity(name, transform);

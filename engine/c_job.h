@@ -2,8 +2,6 @@
 
 class Job
 {
-	
-
 public:
 	enum STATUS
 	{

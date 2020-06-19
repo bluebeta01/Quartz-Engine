@@ -5,7 +5,7 @@
 class StandardShader : public Shader
 {
 public:
-	StandardShader(ID3D11Device* device);
-	~StandardShader();
 	ID3D11Buffer* m_matrixBuffer = nullptr;
+
+	StandardShader(ID3D11Device* device);
 };

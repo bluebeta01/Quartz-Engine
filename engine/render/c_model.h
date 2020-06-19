@@ -5,10 +5,10 @@
 class Model
 {
 public:
+	std::string name;
 	ID3D11Buffer* dxVertexBuffer;
 	UINT vertCount;
 	UINT m_vertexSize;
 	UINT m_dataSize;
-	std::string name;
 	Material* material;
 };

@@ -212,7 +212,6 @@ void Renderer::proccessLoadJobs()
 
 Entity* Renderer::colorPick(glm::vec2 cursorPosition)
 {
-	//std::unordered_map<glm::vec3, Entity*> colorEntityMap;
 	glm::vec3 nextColor = {0.0f, 0.0f, 0.01f};
 
 	struct ColorEntityPair
@@ -259,7 +258,6 @@ Entity* Renderer::colorPick(glm::vec2 cursorPosition)
 
 		Model* m = rc->getModel();
 		glm::mat4 mm = pair.second->getModelMatrix();
-		//m_dx11Renderer.renderModel(m, mm, m_camera.getViewMatrix(), m_camera.getPerspectiveMatrix(), NULL, m_standardShader);
 		//DO COLORED RENDER
 		m_dx11Renderer.renderColorPickModel(m, mm, m_currentCamera.getViewMatrix(), m_currentCamera.getPerspectiveMatrix(), m_colorPickShader, color);
 	}

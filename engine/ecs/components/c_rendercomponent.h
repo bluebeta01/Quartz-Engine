@@ -6,14 +6,13 @@
 class RenderComponent : public Component
 {
 public:
-	RenderComponent(Model* model);
-	~RenderComponent();
-	void setModel(Model* model);
-	Model* getModel();
-	void setOverrideMaterial(Material* material);
-	Material* getOverrideMaterial();
 	bool m_onTop = false;
-	void update();
+
+	RenderComponent(Model* model);
+	void setModel(Model* model);
+	void setOverrideMaterial(Material* material);
+	Model* getModel();
+	Material* getOverrideMaterial();
 
 private:
 	Model * model = NULL;

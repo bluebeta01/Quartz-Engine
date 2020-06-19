@@ -160,8 +160,6 @@ void GameWindow::tick()
 
 		
 	}
-
-	//centerCursor();
 }
 
 void GameWindow::centerCursor()

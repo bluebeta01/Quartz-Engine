@@ -43,11 +43,6 @@ struct Transform
 	{
 		glm::mat4 positionMatrix = glm::translate(glm::mat4(1.0f), transform.position);
 		glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), transform.scale);
-
-		/*glm::mat4 rotationMatrixX = glm::rotate(glm::mat4(1.0f), glm::radians(transform.rotation.x - 90.0f), glm::vec3(1, 0, 0));
-		glm::mat4 rotationMatrixY = glm::rotate(glm::mat4(1.0f), glm::radians(transform.rotation.y), glm::vec3(0, 1, 0));
-		glm::mat4 rotationMatrixZ = glm::rotate(glm::mat4(1.0f), glm::radians(transform.rotation.z), glm::vec3(0, 0, 1));
-		glm::mat4 rotationMatrix = rotationMatrixZ * rotationMatrixY * rotationMatrixX;*/
 		
 		glm::quat rotationQuat = glm::quat(glm::vec3(glm::radians(transform.rotation.x), glm::radians(transform.rotation.y), glm::radians(transform.rotation.z)));
 		glm::mat4 rotationMatrix = glm::toMat4(rotationQuat);

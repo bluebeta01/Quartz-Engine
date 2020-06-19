@@ -16,7 +16,8 @@ public:
 	bool enabled = true;
 	EcsUid m_uid;
 	static std::unordered_map<EcsUid, Component*> s_components;
+
 	Component(COMPONENT_TYPE type);
 	virtual void update() {};
-	virtual ~Component();
+	virtual ~Component() {};
 };

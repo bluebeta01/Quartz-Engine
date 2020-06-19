@@ -37,15 +37,11 @@ void Dx11Renderer::rebuildDx()
 
 	IDXGIDevice* pDXGIDevice;
 	HRESULT hr = m_device->QueryInterface(__uuidof(IDXGIDevice), (void**)&pDXGIDevice);
-
 	IDXGIAdapter* pDXGIAdapter;
 	hr = pDXGIDevice->GetParent(__uuidof(IDXGIAdapter), (void**)&pDXGIAdapter);
-
 	IDXGIFactory* pIDXGIFactory;
 	pDXGIAdapter->GetParent(__uuidof(IDXGIFactory), (void**)&pIDXGIFactory);
-
 	pIDXGIFactory->CreateSwapChain(m_device, &scd, &m_swapChain);
-
 
 	// get the address of the back buffer
 	ID3D11Texture2D* pBackBuffer;
@@ -54,8 +50,6 @@ void Dx11Renderer::rebuildDx()
 	// use the back buffer address to create the render target
 	HRESULT r = m_device->CreateRenderTargetView(pBackBuffer, NULL, &m_backBuffer);
 	pBackBuffer->Release();
-
-
 
 	//Describe our Depth/Stencil Buffer
 	D3D11_TEXTURE2D_DESC depthStencilDesc;
@@ -71,12 +65,8 @@ void Dx11Renderer::rebuildDx()
 	depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 	HRESULT status = m_device->CreateTexture2D(&depthStencilDesc, NULL, &m_depthStencilBuffer);
 
-
 	status = m_device->CreateDepthStencilView(m_depthStencilBuffer, NULL, &m_depthStencilView);
-
-
 	m_deviceContext->OMSetRenderTargets(1, &m_backBuffer, m_depthStencilView);
-
 
 	D3D11_DEPTH_STENCIL_DESC dsDesc = {};
 	ZeroMemory(&dsDesc, sizeof(D3D11_DEPTH_STENCIL_DESC));
@@ -84,25 +74,18 @@ void Dx11Renderer::rebuildDx()
 	dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	dsDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 	status = m_device->CreateDepthStencilState(&dsDesc, &m_depthStencilState);
-
 	dsDesc.DepthEnable = false;
 	status = m_device->CreateDepthStencilState(&dsDesc, &m_depthStencilStateNoDepth);
 
-
-
-
 	D3D11_VIEWPORT viewport;
 	ZeroMemory(&viewport, sizeof(D3D11_VIEWPORT));
-
 	viewport.TopLeftX = 0;
 	viewport.TopLeftY = 0;
 	viewport.Width = GameWindow::s_clientSize.x;
 	viewport.Height = GameWindow::s_clientSize.y;
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
-
 	m_deviceContext->RSSetViewports(1, &viewport);
-
 
 	D3D11_SAMPLER_DESC sampDesc;
 	ZeroMemory(&sampDesc, sizeof(sampDesc));
@@ -115,14 +98,12 @@ void Dx11Renderer::rebuildDx()
 	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	m_device->CreateSamplerState(&sampDesc, &m_samplerState);
 
-
 	D3D11_RASTERIZER_DESC rasterDesc;
 	ZeroMemory(&rasterDesc, sizeof(D3D11_RASTERIZER_DESC));
 	rasterDesc.CullMode = D3D11_CULL_BACK;
 	rasterDesc.FillMode = D3D11_FILL_SOLID;
 	ID3D11RasterizerState* rasterState;
 	m_device->CreateRasterizerState(&rasterDesc, &rasterState);
-
 	m_deviceContext->RSSetState(rasterState);
 }
 
@@ -170,18 +151,14 @@ void Dx11Renderer::uploadTexture(JobLoadTexture* job)
 	initData.pSysMem = job->textureData->rawPixelData.data();
 	initData.SysMemPitch = static_cast<UINT>(job->textureData->width * 4);
 	initData.SysMemSlicePitch = static_cast<UINT>(job->textureData->width * job->textureData->height * 4);
-
 	m_device->CreateTexture2D(&desc, &initData, &job->texture->m_dxTexture);
-
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC SRVDesc;
 	memset(&SRVDesc, 0, sizeof(SRVDesc));
 	SRVDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	SRVDesc.Texture2D.MipLevels = 1;
-
 	m_device->CreateShaderResourceView(job->texture->m_dxTexture, &SRVDesc, &job->texture->m_dxResourceView);
-
 }
 void Dx11Renderer::clearFramebuffer(Framebuffer* framebuffer)
 {
@@ -224,8 +201,6 @@ void Dx11Renderer::renderModel(Model* model, glm::mat4 modelMatrix, glm::mat4 vi
 	m_deviceContext->Unmap(shader->m_matrixBuffer, 0);
 
 	m_deviceContext->VSSetConstantBuffers(0, 1, &shader->m_matrixBuffer);
-
-
 	m_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	m_deviceContext->Draw(model->vertCount, 0);
 }
@@ -266,8 +241,6 @@ void Dx11Renderer::renderColorPickModel(Model* model, glm::mat4 modelMatrix, glm
 	modelMatrix = glm::transpose(modelMatrix);
 	viewMatrix = glm::transpose(viewMatrix);
 
-	//glm::mat4 cb[3] = { modelMatrix, viewMatrix, projectionMatrix };
-
 	struct bufferData
 	{
 		glm::mat4 mm, vm, pm;
@@ -284,8 +257,6 @@ void Dx11Renderer::renderColorPickModel(Model* model, glm::mat4 modelMatrix, glm
 	m_deviceContext->Unmap(shader->m_buffer, 0);
 
 	m_deviceContext->VSSetConstantBuffers(0, 1, &shader->m_buffer);
-
-
 	m_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	m_deviceContext->Draw(model->vertCount, 0);
 }
@@ -316,9 +287,6 @@ glm::vec3 Dx11Renderer::getColorPickColor(glm::vec2 cursorPosition, ColorPickSha
 	m_backBuffer->GetResource(&resource);
 	m_deviceContext->CopyResource(texture, shader->m_renderTexture);
 
-
-
-
 	//NOTE: The data that comes out of a texture is padded on each row. D3D11_MAPPED_SUBRESOURCE.RowPitch is the number of bytes of padding
 	//		each row has. You must take this into account when trying to access a specific pixel in the image!
 
@@ -328,19 +296,7 @@ glm::vec3 Dx11Renderer::getColorPickColor(glm::vec2 cursorPosition, ColorPickSha
 	memcpy(data, ms.pData, ms.DepthPitch);
 	m_deviceContext->Unmap(texture, 0);
 
-	//LOGDEBUG(ms.RowPitch * m_height);
-	//LOGDEBUG(m_width * m_height * 8);
-
-	/*std::vector<unsigned char> chars;
-	for (int i = 0; i < m_width * m_height * 4; i++)
-	{
-		chars.push_back((unsigned char)data[i]);
-	}
-
-	lodepng::encode("C:/Users/Logan/Desktop/file.png", chars, m_width, m_height);*/
-
 	UINT rowPadding = ms.RowPitch - (GameWindow::s_renderAreaSize.x * 8);
-	LOGDEBUG(rowPadding);
 
 	UINT yOffset = cursorPosition.y * (GameWindow::s_renderAreaSize.x * 8 + rowPadding);
 	UINT xOffset = cursorPosition.x * 8;
@@ -373,7 +329,6 @@ glm::vec3 Dx11Renderer::screenToWorldPosition(glm::vec2 cursorPosition, glm::mat
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
 	desc.Usage = D3D11_USAGE_STAGING;
-	//desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 	desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
 	desc.MiscFlags = 0;
 	ID3D11Texture2D* texture;

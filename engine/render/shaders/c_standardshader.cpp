@@ -40,8 +40,3 @@ StandardShader::StandardShader(ID3D11Device* device)
 	desc.StructureByteStride = 0;
 	device->CreateBuffer(&desc, 0, &m_matrixBuffer);
 }
-
-StandardShader::~StandardShader()
-{
-
-}

@@ -161,7 +161,6 @@
     <ClCompile Include="render\c_framebuffer.cpp" />
     <ClCompile Include="render\c_modelmanager.cpp" />
     <ClCompile Include="render\c_renderer.cpp" />
-    <ClCompile Include="render\c_shadermanager.cpp" />
     <ClCompile Include="render\c_texture.cpp" />
     <ClCompile Include="render\shaders\c_colorpickshader.cpp" />
     <ClCompile Include="render\shaders\c_standardshader.cpp" />
@@ -204,7 +203,6 @@
     <ClInclude Include="render\c_modelmanager.h" />
     <ClInclude Include="render\c_renderer.h" />
     <ClInclude Include="render\c_shader.h" />
-    <ClInclude Include="render\c_shadermanager.h" />
     <ClInclude Include="render\c_texture.h" />
     <ClInclude Include="render\c_texturemanager.h" />
     <ClInclude Include="render\jobs.h" />

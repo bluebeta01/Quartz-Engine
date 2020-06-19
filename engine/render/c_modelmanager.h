@@ -5,8 +5,8 @@
 static class ModelManager
 {
 public:
-	static Model* getModelByName(std::string name);
 	static void registerModel(Model* model);
+	static Model* getModelByName(std::string name);
 
 private:
 	static std::vector<Model*> models;

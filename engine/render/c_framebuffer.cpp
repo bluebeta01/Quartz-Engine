@@ -1,11 +1,6 @@
 #include "pch.h"
 #include "c_framebuffer.h"
 
-Framebuffer::Framebuffer()
-{
-
-}
-
 Framebuffer::~Framebuffer()
 {
 	m_renderTexture->Release();

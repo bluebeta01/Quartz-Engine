@@ -9,8 +9,3 @@ Component::Component(COMPONENT_TYPE type) : m_componentType(type)
 {
 	m_uid = Entity::s_nextUid++;
 }
-
-Component::~Component()
-{
-	
-}
