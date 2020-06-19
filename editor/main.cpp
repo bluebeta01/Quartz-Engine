@@ -1,10 +1,11 @@
 #include "c_editor.h"
+#include "engine/engine.h"
 
 int main()
 {
 	Editor editor;
 
-	while (!screen::terminated)
+	while (!editor.m_gameWindow->s_isTerminating)
 	{
 		editor.tick();
 		editor.render();

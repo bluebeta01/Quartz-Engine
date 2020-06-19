@@ -165,7 +165,7 @@
     <ClCompile Include="render\c_texture.cpp" />
     <ClCompile Include="render\shaders\c_colorpickshader.cpp" />
     <ClCompile Include="render\shaders\c_standardshader.cpp" />
-    <ClCompile Include="screen\screen.cpp" />
+    <ClCompile Include="c_gamewindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="asset\asset.h" />
@@ -188,6 +188,7 @@
     <ClInclude Include="render\c_framebuffer.h" />
     <ClInclude Include="render\shaders\c_colorpickshader.h" />
     <ClInclude Include="render\shaders\c_standardshader.h" />
+    <ClInclude Include="c_gamewindow.h" />
     <ClInclude Include="transform.h" />
     <ClInclude Include="filesystem\c_plugin.h" />
     <ClInclude Include="filesystem\filesystem.h" />
@@ -207,7 +208,6 @@
     <ClInclude Include="render\c_texture.h" />
     <ClInclude Include="render\c_texturemanager.h" />
     <ClInclude Include="render\jobs.h" />
-    <ClInclude Include="screen\screen.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\lodepng\lodepng.vcxproj">

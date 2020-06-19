@@ -22,6 +22,9 @@ void Gizmo::initialize(Renderer* renderer, Camera* camera, World* world)
 
 void Gizmo::update()
 {
+	if (GameWindow::s_resizeEvent)
+		frameBuffer->rebuildFramebuffer(GameWindow::s_clientSize.x, GameWindow::s_clientSize.y);
+
 	selectEntity();
 	setupGizmo();
 	gizmoSelect();
@@ -58,7 +61,7 @@ void Gizmo::selectEntity()
 {
 	if (input::isMouseButtonClicked(input::MOUSEBUTTON_LEFT))
 	{
-		Entity* e = renderer->colorPick(input::mousePosition);
+		Entity* e = renderer->colorPick(input::cursorPosition);
 		if (e) {
 			if (e->m_uid == m_transformGizmoXArrow->m_uid || e->m_uid == m_transformGizmoYArrow->m_uid || e->m_uid == m_transformGizmoZArrow->m_uid)
 				return;
@@ -91,7 +94,7 @@ void Gizmo::gizmoSelect()
 {
 	if (input::isMouseButtonClicked(input::MOUSEBUTTON_LEFT))
 	{
-		Entity* e = renderer->colorPick(input::mousePosition);
+		Entity* e = renderer->colorPick(input::cursorPosition);
 
 		if (e)
 		{
@@ -119,7 +122,7 @@ void Gizmo::gizmoSelect()
 
 				m_selectedGizmo = m_transformGizmoXArrow;
 
-				m_gizmoSelectLocation = renderer->screenToWorldPosition(input::mousePosition, frameBuffer) - m_gizmo->getWorldPosition();
+				m_gizmoSelectLocation = renderer->screenToWorldPosition(input::cursorPosition, frameBuffer) - m_gizmo->getWorldPosition();
 				
 			}
 
@@ -143,7 +146,7 @@ void Gizmo::gizmoSelect()
 
 				m_selectedGizmo = m_transformGizmoYArrow;
 
-				m_gizmoSelectLocation = renderer->screenToWorldPosition(input::mousePosition, frameBuffer) - m_gizmo->getWorldPosition();
+				m_gizmoSelectLocation = renderer->screenToWorldPosition(input::cursorPosition, frameBuffer) - m_gizmo->getWorldPosition();
 
 			}
 
@@ -171,7 +174,7 @@ void Gizmo::gizmoSelect()
 
 				m_selectedGizmo = m_transformGizmoZArrow;
 
-				m_gizmoSelectLocation = renderer->screenToWorldPosition(input::mousePosition, frameBuffer) - m_gizmo->getWorldPosition();
+				m_gizmoSelectLocation = renderer->screenToWorldPosition(input::cursorPosition, frameBuffer) - m_gizmo->getWorldPosition();
 
 			}
 
@@ -192,7 +195,7 @@ void Gizmo::gizmoDrag()
 	{
 		if (m_selectedGizmo == m_transformGizmoXArrow)
 		{
-			glm::vec3 newDepthPos = renderer->screenToWorldPosition(input::mousePosition, frameBuffer);
+			glm::vec3 newDepthPos = renderer->screenToWorldPosition(input::cursorPosition, frameBuffer);
 			float newX = newDepthPos.x - m_gizmoSelectLocation.x;
 			/*m_transformGizmoXArrow->setWorldPosition(glm::vec3(newX, m_transformGizmoXArrow->getWorldPosition().y, m_transformGizmoXArrow->getWorldPosition().z));
 			m_transformGizmoYArrow->setWorldPosition(glm::vec3(newX, m_transformGizmoYArrow->getWorldPosition().y, m_transformGizmoYArrow->getWorldPosition().z));
@@ -206,7 +209,7 @@ void Gizmo::gizmoDrag()
 
 		if (m_selectedGizmo == m_transformGizmoYArrow)
 		{
-			glm::vec3 newDepthPos = renderer->screenToWorldPosition(input::mousePosition, frameBuffer);
+			glm::vec3 newDepthPos = renderer->screenToWorldPosition(input::cursorPosition, frameBuffer);
 			float newY = (newDepthPos.y - m_gizmoSelectLocation.y);
 			/*glm::vec3 pos = m_transformGizmoXArrow->getWorldPosition();
 			m_transformGizmoXArrow->setWorldPosition(glm::vec3(pos.x, newY, pos.z));
@@ -223,7 +226,7 @@ void Gizmo::gizmoDrag()
 
 		if (m_selectedGizmo == m_transformGizmoZArrow)
 		{
-			glm::vec3 newDepthPos = renderer->screenToWorldPosition(input::mousePosition, frameBuffer);
+			glm::vec3 newDepthPos = renderer->screenToWorldPosition(input::cursorPosition, frameBuffer);
 			float newZ = (newDepthPos.z - m_gizmoSelectLocation.z);
 			/*glm::vec3 pos = m_transformGizmoXArrow->getWorldPosition();
 			m_transformGizmoXArrow->setWorldPosition(glm::vec3(pos.x, pos.y, newZ));

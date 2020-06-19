@@ -1,33 +1,57 @@
 #include "pch.h"
 #include "c_dx11renderer.h"
 
-void Dx11Renderer::initialize(HWND windowHandle, int width, int height)
+#include <lodepng.h>
+
+void Dx11Renderer::initialize(GameWindow* gameWindow)
 {
-	m_width = width;
-	m_height = height;
+	m_gameWindow = gameWindow;
+
+	m_width = gameWindow->s_clientSize.x;
+	m_height = gameWindow->s_clientSize.y;
+
+	D3D11CreateDevice(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, NULL, NULL, NULL, D3D11_SDK_VERSION, &m_device, NULL, &m_deviceContext);
+	
+	rebuildDx();
+}
+
+void Dx11Renderer::rebuildDx()
+{
+	if (m_swapChain)
+		m_swapChain->Release();
+	if (m_backBuffer)
+		m_backBuffer->Release();
+	if (m_depthStencilBuffer)
+		m_depthStencilBuffer->Release();
+	if (m_depthStencilView)
+		m_depthStencilView->Release();
+	if (m_samplerState)
+		m_samplerState->Release();
+	if (m_depthStencilState)
+		m_depthStencilState->Release();
+	if (m_depthStencilStateNoDepth)
+		m_depthStencilStateNoDepth->Release();
 
 	DXGI_SWAP_CHAIN_DESC scd;
 	ZeroMemory(&scd, sizeof(DXGI_SWAP_CHAIN_DESC));
 	scd.BufferCount = 1;                                    // one back buffer
 	scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;     // use 32-bit color
 	scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;      // how swap chain is to be used
-	scd.OutputWindow = windowHandle;                                // the window to be used
+	scd.OutputWindow = m_gameWindow->m_windowHandle;                                // the window to be used
 	scd.SampleDesc.Count = 1;                               // how many multisamples
-	scd.Windowed = TRUE;                                    // windowed/full-screen mode
+	scd.Windowed = TRUE;
 
-	// create a device, device context and swap chain using the information in the scd struct
-	D3D11CreateDeviceAndSwapChain(NULL,
-		D3D_DRIVER_TYPE_HARDWARE,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		D3D11_SDK_VERSION,
-		&scd,
-		&m_swapChain,
-		&m_device,
-		NULL,
-		&m_deviceContext);
+	IDXGIDevice* pDXGIDevice;
+	HRESULT hr = m_device->QueryInterface(__uuidof(IDXGIDevice), (void**)&pDXGIDevice);
+
+	IDXGIAdapter* pDXGIAdapter;
+	hr = pDXGIDevice->GetParent(__uuidof(IDXGIAdapter), (void**)&pDXGIAdapter);
+
+	IDXGIFactory* pIDXGIFactory;
+	pDXGIAdapter->GetParent(__uuidof(IDXGIFactory), (void**)&pIDXGIFactory);
+
+	pIDXGIFactory->CreateSwapChain(m_device, &scd, &m_swapChain);
+
 
 	// get the address of the back buffer
 	ID3D11Texture2D* pBackBuffer;
@@ -42,8 +66,8 @@ void Dx11Renderer::initialize(HWND windowHandle, int width, int height)
 	//Describe our Depth/Stencil Buffer
 	D3D11_TEXTURE2D_DESC depthStencilDesc;
 	ZeroMemory(&depthStencilDesc, sizeof(D3D11_TEXTURE2D_DESC));
-	depthStencilDesc.Width = 1280;
-	depthStencilDesc.Height = 720;
+	depthStencilDesc.Width = m_gameWindow->s_clientSize.x;
+	depthStencilDesc.Height = m_gameWindow->s_clientSize.y;
 	depthStencilDesc.MipLevels = 1;
 	depthStencilDesc.ArraySize = 1;
 	depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
@@ -69,7 +93,7 @@ void Dx11Renderer::initialize(HWND windowHandle, int width, int height)
 
 	dsDesc.DepthEnable = false;
 	status = m_device->CreateDepthStencilState(&dsDesc, &m_depthStencilStateNoDepth);
-	
+
 
 
 
@@ -78,14 +102,14 @@ void Dx11Renderer::initialize(HWND windowHandle, int width, int height)
 
 	viewport.TopLeftX = 0;
 	viewport.TopLeftY = 0;
-	viewport.Width = width;
-	viewport.Height = height;
+	viewport.Width = m_gameWindow->s_clientSize.x;
+	viewport.Height = m_gameWindow->s_clientSize.y;
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
 
 	m_deviceContext->RSSetViewports(1, &viewport);
 
-	
+
 	D3D11_SAMPLER_DESC sampDesc;
 	ZeroMemory(&sampDesc, sizeof(sampDesc));
 	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
@@ -107,6 +131,14 @@ void Dx11Renderer::initialize(HWND windowHandle, int width, int height)
 
 	m_deviceContext->RSSetState(rasterState);
 }
+
+void Dx11Renderer::onResize()
+{
+	m_width = GameWindow::s_clientSize.x;
+	m_height = GameWindow::s_clientSize.y;
+	rebuildDx();
+}
+
 void Dx11Renderer::uploadModel(JobLoadModel* job)
 {
 	D3D11_BUFFER_DESC bd;
@@ -294,15 +326,32 @@ glm::vec3 Dx11Renderer::getColorPickColor(glm::vec2 cursorPosition, ColorPickSha
 
 
 
+
+	//NOTE: The data that comes out of a texture is padded on each row. D3D11_MAPPED_SUBRESOURCE.RowPitch is the number of bytes of padding
+	//		each row has. You must take this into account when trying to access a specific pixel in the image!
+
 	D3D11_MAPPED_SUBRESOURCE ms;
 	m_deviceContext->Map(texture, 0, D3D11_MAP_READ, 0, &ms);
-	uint16_t* data = (uint16_t*)malloc(ms.DepthPitch);
+	uint8_t* data = (uint8_t*)malloc(ms.DepthPitch);
 	memcpy(data, ms.pData, ms.DepthPitch);
 	m_deviceContext->Unmap(texture, 0);
 
+	//LOGDEBUG(ms.RowPitch * m_height);
+	//LOGDEBUG(m_width * m_height * 8);
 
-	UINT yOffset = cursorPosition.y * m_width * 4;
-	UINT xOffset = cursorPosition.x * 4;
+	/*std::vector<unsigned char> chars;
+	for (int i = 0; i < m_width * m_height * 4; i++)
+	{
+		chars.push_back((unsigned char)data[i]);
+	}
+
+	lodepng::encode("C:/Users/Logan/Desktop/file.png", chars, m_width, m_height);*/
+
+	UINT rowPadding = ms.RowPitch - (m_width * 8);
+	LOGDEBUG(rowPadding);
+
+	UINT yOffset = cursorPosition.y * (m_width * 8 + rowPadding);
+	UINT xOffset = cursorPosition.x * 8;
 	UINT offset = xOffset + yOffset;
 
 	uint16_t pixelColor[4];
@@ -367,8 +416,8 @@ glm::vec3 Dx11Renderer::screenToWorldPosition(glm::vec2 cursorPosition, glm::mat
 	glm::mat4 m = projectionMatrix * viewMatrix;
 	m = glm::inverse(m);
 
-	float mouseX = (2.0f * (cursorPosition.x / 1280.0f)) - 1.0f;
-	float mouseY = -1 * ((2.0f * (cursorPosition.y / 720.0f)) - 1.0f);
+	float mouseX = (2.0f * (cursorPosition.x / (float)GameWindow::s_clientSize.x)) - 1.0f;
+	float mouseY = -1 * ((2.0f * (cursorPosition.y / (float)GameWindow::s_clientSize.y)) - 1.0f);
 
 	glm::vec4 screenPos = { mouseX, mouseY, depth, 1.0f };
 	glm::vec4 worldPos = m * screenPos;

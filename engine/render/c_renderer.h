@@ -19,11 +19,11 @@ public:
 	ColorPickShader* m_colorPickShader = nullptr;
 
 	Renderer(World* world);
-	void initialize(HWND windowHandle, int width, int height);
+	void initialize(GameWindow* gameWindow);
 	Model* getModel(std::string name);
 	Texture* getTexture(std::string name);
 	Material* getMaterial(std::string name);
-	void setCamera(Camera camera) { m_camera = camera; }
+	void setCamera(Camera camera) { m_currentCamera = camera; }
 	void render();
 	void present();
 	Entity* colorPick(glm::vec2 cursorPosition);
@@ -36,6 +36,8 @@ public:
 	glm::vec3 screenToWorldPosition(glm::vec2 cursorPosition, Framebuffer* framebuffer);
 
 	void proccessLoadJobs();
+
+	void tick();
 private:
 	Dx11Renderer m_dx11Renderer;
 	ModelManager m_modelManager;
@@ -43,8 +45,8 @@ private:
 	MaterialManager m_materialManager;
 	ShaderManager m_shaderManager;
 	std::vector<Job*> m_jobVector;
-	Camera m_camera;
+	Camera m_currentCamera;
 	World* m_world = nullptr;
 
-	
+	void onResize();
 };

@@ -8,10 +8,10 @@ namespace input
 		MOUSEBUTTON_LEFT, MOUSEBUTTON_RIGHT, MOUSEBUTTON_MIDDLE
 	};
 
-	extern glm::vec2 mousePosition;
-	extern glm::vec2 mouseDelta;
-	extern bool lockMouse;
-	extern glm::vec2 mouseLockPosition;
+	extern glm::vec2 cursorPosition;
+	extern glm::vec2 cursorDelta;
+	extern bool cursorLock;
+	extern glm::vec2 cursorLockPosition;
 
 	void registerKeyDown(int key);
 	void registerKeyUp(int key);

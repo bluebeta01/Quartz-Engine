@@ -2,6 +2,7 @@
 #include "c_camera.h"
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
+#include "c_gamewindow.h"
 
 Camera::Camera(glm::vec3 location, glm::vec3 rotation, float fov, float nearPlane, float farPlane, float aspect)
 {
@@ -44,6 +45,6 @@ glm::vec3 Camera::getRight()
 
 glm::mat4 Camera::getPerspectiveMatrix()
 {
-	return glm::perspectiveFovLH(fov, 1280.0f, 720.0f, nearPlane, farPlane);
+	return glm::perspectiveFovLH(fov, (float)GameWindow::s_clientSize.x, (float)GameWindow::s_clientSize.y, nearPlane, farPlane);
 	//return glm::perspective(glm::radians(fov), aspect, nearPlane, farPlane);
 }

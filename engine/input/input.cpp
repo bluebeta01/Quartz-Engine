@@ -3,10 +3,10 @@
 
 namespace input
 {
-	glm::vec2 mousePosition;
-	glm::vec2 mouseDelta;
-	bool lockMouse = false;
-	glm::vec2 mouseLockPosition;
+	glm::vec2 cursorPosition;
+	glm::vec2 cursorDelta;
+	bool cursorLock = false;
+	glm::vec2 cursorLockPosition;
 	std::vector<int> keysDown;
 	std::vector<int> keysPressed;
 

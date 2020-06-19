@@ -1,9 +1,12 @@
 #include "pch.h"
 #include "c_colorpickshader.h"
 #include "filesystem/filesystem.h"
+#include "c_gamewindow.h"
 
 ColorPickShader::ColorPickShader(ID3D11Device* device)
 {
+	m_device = device;
+
 	std::string vertexShaderPath = filesystem::findFilePathByName("shaders/dx/colorpick.hlsl");
 	std::string pixelShaderPath = filesystem::findFilePathByName("shaders/dx/colorpick.hlsl");
 
@@ -41,10 +44,20 @@ ColorPickShader::ColorPickShader(ID3D11Device* device)
 	device->CreateBuffer(&desc, 0, &m_buffer);
 
 
+	rebuildRenderTextures(GameWindow::s_clientSize.x, GameWindow::s_clientSize.y);
+}
+
+void ColorPickShader::rebuildRenderTextures(int width, int height)
+{
+	if(m_renderTexture)
+		m_renderTexture->Release();
+	if(m_renderTargetView)
+		m_renderTargetView->Release();
+	
 	D3D11_TEXTURE2D_DESC textureDesc;
 	ZeroMemory(&textureDesc, sizeof(D3D11_TEXTURE2D_DESC));
-	textureDesc.Width = 1280;
-	textureDesc.Height = 720;
+	textureDesc.Width = GameWindow::s_clientSize.x;
+	textureDesc.Height = GameWindow::s_clientSize.y;
 	textureDesc.MipLevels = 1;
 	textureDesc.ArraySize = 1;
 	textureDesc.Format = DXGI_FORMAT_R16G16B16A16_UNORM;
@@ -54,12 +67,18 @@ ColorPickShader::ColorPickShader(ID3D11Device* device)
 	textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET;
 	//textureDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
 	textureDesc.MiscFlags = 0;
-	HRESULT status = device->CreateTexture2D(&textureDesc, nullptr, &m_renderTexture);
+	HRESULT status = m_device->CreateTexture2D(&textureDesc, nullptr, &m_renderTexture);
 
 	D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
 	ZeroMemory(&renderTargetViewDesc, sizeof(D3D11_RENDER_TARGET_VIEW_DESC));
 	renderTargetViewDesc.Format = textureDesc.Format;
 	renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 	renderTargetViewDesc.Texture2D.MipSlice = 0;
-	status = device->CreateRenderTargetView(m_renderTexture, &renderTargetViewDesc, &m_renderTargetView);
+	status = m_device->CreateRenderTargetView(m_renderTexture, &renderTargetViewDesc, &m_renderTargetView);
+}
+
+void ColorPickShader::screenResize(int width, int height)
+{
+	
+	rebuildRenderTextures(width, height);
 }

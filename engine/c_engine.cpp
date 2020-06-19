@@ -2,29 +2,27 @@
 #include "c_engine.h"
 #include "asset/asset.h"
 #include "filesystem/filesystem.h"
-#include "screen/screen.h"
+#include "c_gamewindow.h"
 
-Engine::Engine(HWND windowHandle, int windowWidth, int windowHeight) : m_world(), m_renderer(&m_world)
+Engine::Engine(GameWindow* gameWindow) : m_world(), m_renderer(&m_world)
 {
-	m_assetThread = asset::assetInit();
+	m_assetThread = asset::assetInit(&gameWindow->s_isTerminating);
 	filesystem::registerPlugin("game");
-	if (windowHandle == NULL)
+	if (gameWindow->m_windowHandle == NULL)
 	{
-		screen::initializeScreen();
-		m_renderer.initialize(screen::windowHandle, windowWidth, windowHeight);
+		m_renderer.initialize(gameWindow);
 	}
 	else
 	{
-		m_renderer.initialize(windowHandle, windowWidth, windowHeight);
+		m_renderer.initialize(gameWindow);
 	}
 
 
 }
 
-void Engine::update()
+void Engine::tick()
 {
-	screen::updateScreen();
-
+	m_renderer.tick();
 	for (auto p : m_world.m_entityMap)
 	{
 		for (auto i : p.second->m_components)

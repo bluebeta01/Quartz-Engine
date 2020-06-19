@@ -16,6 +16,21 @@ Framebuffer::~Framebuffer()
 
 void Framebuffer::initialize(ID3D11Device* device, int width, int height)
 {
+	m_device = device;
+	rebuildFramebuffer(width, height);
+}
+
+void Framebuffer::rebuildFramebuffer(int width, int height)
+{
+	if (m_renderTexture)
+		m_renderTexture->Release();
+	if (m_renderTextureView)
+		m_renderTextureView->Release();
+	if (m_depthStencilTexture)
+		m_depthStencilTexture->Release();
+	if (m_depthStencilView)
+		m_depthStencilView->Release();
+
 	m_width = width;
 	m_height = height;
 	D3D11_TEXTURE2D_DESC renderTextureDesc;
@@ -29,11 +44,11 @@ void Framebuffer::initialize(ID3D11Device* device, int width, int height)
 	renderTextureDesc.SampleDesc.Quality = 0;
 	renderTextureDesc.Usage = D3D11_USAGE_DEFAULT;
 	renderTextureDesc.BindFlags = D3D11_BIND_RENDER_TARGET;
-	HRESULT status = device->CreateTexture2D(&renderTextureDesc, NULL, &m_renderTexture);
+	HRESULT status = m_device->CreateTexture2D(&renderTextureDesc, NULL, &m_renderTexture);
 	if (status != S_OK)
 		LOGERROR("Failed to create framebuffer render texture!");
 
-	status = device->CreateRenderTargetView(m_renderTexture, NULL, &m_renderTextureView);
+	status = m_device->CreateRenderTargetView(m_renderTexture, NULL, &m_renderTextureView);
 	if (status != S_OK)
 		LOGERROR("Failed to create framebuffer render texture view!");
 
@@ -49,12 +64,12 @@ void Framebuffer::initialize(ID3D11Device* device, int width, int height)
 	depthStencilDesc.SampleDesc.Quality = 0;
 	depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
 	depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-	status = device->CreateTexture2D(&depthStencilDesc, NULL, &m_depthStencilTexture);
+	status = m_device->CreateTexture2D(&depthStencilDesc, NULL, &m_depthStencilTexture);
 	if (status != S_OK)
 		LOGERROR("Failed to create framebuffer depthstencil texture!");
 
 
-	status = device->CreateDepthStencilView(m_depthStencilTexture, NULL, &m_depthStencilView);
+	status = m_device->CreateDepthStencilView(m_depthStencilTexture, NULL, &m_depthStencilView);
 	if (status != S_OK)
 		LOGERROR("Failed to create framebuffer depthstencil view!");
 }

@@ -2,7 +2,6 @@
 #include "asset.h"
 #include "jobs.h"
 #include "loader.h"
-#include "screen/screen.h"
 #include "pngloader.h"
 #include "materialloader.h"
 
@@ -29,9 +28,9 @@ namespace asset
 		justSubmittedJobs.clear();
 	}
 
-	void checkJobs()
+	void checkJobs(bool* terminating)
 	{
-		while (!screen::terminated)
+		while (!*terminating)
 		{
 			submitUnsubmittedJobs();
 
@@ -77,9 +76,9 @@ namespace asset
 		}
 	}
 
-	std::thread assetInit()
+	std::thread assetInit(bool* terminating)
 	{
-		std::thread assetThread(checkJobs);
+		std::thread assetThread(checkJobs, terminating);
 		return assetThread;
 	}
 

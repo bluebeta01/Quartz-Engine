@@ -6,7 +6,7 @@
 
 namespace asset
 {
-	std::thread assetInit();
+	std::thread assetInit(bool* terminating);
 
 	ModelData* assetLoadModelData(std::string filename);
 	TextureData* assetLoadTextureData(std::string filename);

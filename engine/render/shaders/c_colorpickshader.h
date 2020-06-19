@@ -5,8 +5,13 @@
 class ColorPickShader : public Shader
 {
 public:
-	ColorPickShader(ID3D11Device* device);
 	ID3D11Buffer* m_buffer = nullptr;
-	ID3D11Texture2D* m_renderTexture = nullptr;
 	ID3D11RenderTargetView* m_renderTargetView;
+	ID3D11Texture2D* m_renderTexture = nullptr;
+	ColorPickShader(ID3D11Device* device);
+	void screenResize(int width, int height);
+
+private:
+	ID3D11Device* m_device;
+	void rebuildRenderTextures(int width, int height);
 };

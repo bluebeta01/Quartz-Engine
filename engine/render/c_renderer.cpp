@@ -3,18 +3,19 @@
 #include "jobs.h"
 #include "asset/asset.h"
 #include "filesystem/filesystem.h"
+#include "c_gamewindow.h"
 
 Renderer::Renderer(World* world) : m_world(world)
 {
 
 }
 
-void Renderer::initialize(HWND windowHandle, int width, int height)
+void Renderer::initialize(GameWindow* gameWindow)
 {
-	m_width = width;
-	m_height = height;
-	m_camera = Camera(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), 40.0f, 0.1f, 1000.0f, (float)m_width / (float)m_height);
-	m_dx11Renderer.initialize(windowHandle, width, height);
+	m_width = gameWindow->s_clientSize.x;
+	m_height = gameWindow->s_clientSize.y;
+	m_currentCamera = Camera(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), 40.0f, 0.1f, 1000.0f, (float)m_width / (float)m_height);
+	m_dx11Renderer.initialize(gameWindow);
 	m_standardShader = new StandardShader(m_dx11Renderer.m_device);
 	m_colorPickShader = new ColorPickShader(m_dx11Renderer.m_device);
 }
@@ -88,12 +89,26 @@ void Renderer::clearFramebuffer(Framebuffer* framebuffer)
 	m_dx11Renderer.clearFramebuffer(framebuffer);
 }
 
+void Renderer::onResize()
+{
+	m_width = GameWindow::s_clientSize.x;
+	m_height = GameWindow::s_clientSize.y;
+	m_dx11Renderer.onResize();
+	m_colorPickShader->screenResize(GameWindow::s_clientSize.x, GameWindow::s_clientSize.y);
+}
+
+void Renderer::tick()
+{
+	if (GameWindow::s_resizeEvent)
+		onResize();
+}
+
 void Renderer::render()
 {
 	proccessLoadJobs();
 	m_dx11Renderer.clearFrame();
 	m_dx11Renderer.enableDepth(true);
-	glm::mat4 pm = glm::perspective(glm::radians(40.0f), 16.0f / 9.0f, 0.1f, 1000.0f);
+	glm::mat4 pm = glm::perspective(glm::radians(40.0f), (float)m_width / (float)m_height, 0.1f, 1000.0f);
 
 	std::vector<Entity*> onTopModels;
 
@@ -114,7 +129,7 @@ void Renderer::render()
 				continue;
 			}
 			glm::mat4 mm = pair.second->getModelMatrix();
-			m_dx11Renderer.renderModel(m, mm, m_camera.getViewMatrix(), m_camera.getPerspectiveMatrix(), NULL, m_standardShader, nullptr);
+			m_dx11Renderer.renderModel(m, mm, m_currentCamera.getViewMatrix(), m_currentCamera.getPerspectiveMatrix(), NULL, m_standardShader, nullptr);
 		}
 	}
 
@@ -124,7 +139,7 @@ void Renderer::render()
 		RenderComponent* rc = dynamic_cast<RenderComponent*>(e->getComponent(Component::COMPONENT_TYPE_RENDER_COMPONENT));
 		Model* m = rc->getModel();
 		glm::mat4 mm = e->getModelMatrix();
-		m_dx11Renderer.renderModel(m, mm, m_camera.getViewMatrix(), m_camera.getPerspectiveMatrix(), NULL, m_standardShader, nullptr);
+		m_dx11Renderer.renderModel(m, mm, m_currentCamera.getViewMatrix(), m_currentCamera.getPerspectiveMatrix(), NULL, m_standardShader, nullptr);
 	}
 	m_dx11Renderer.enableDepth(true);
 	
@@ -251,7 +266,7 @@ Entity* Renderer::colorPick(glm::vec2 cursorPosition)
 		glm::mat4 mm = pair.second->getModelMatrix();
 		//m_dx11Renderer.renderModel(m, mm, m_camera.getViewMatrix(), m_camera.getPerspectiveMatrix(), NULL, m_standardShader);
 		//DO COLORED RENDER
-		m_dx11Renderer.renderColorPickModel(m, mm, m_camera.getViewMatrix(), m_camera.getPerspectiveMatrix(), m_colorPickShader, color);
+		m_dx11Renderer.renderColorPickModel(m, mm, m_currentCamera.getViewMatrix(), m_currentCamera.getPerspectiveMatrix(), m_colorPickShader, color);
 	}
 
 
@@ -277,7 +292,7 @@ Entity* Renderer::colorPick(glm::vec2 cursorPosition)
 		RenderComponent* rc = dynamic_cast<RenderComponent*>(e->getComponent(Component::COMPONENT_TYPE_RENDER_COMPONENT));
 		Model* m = rc->getModel();
 		glm::mat4 mm = e->getModelMatrix();
-		m_dx11Renderer.renderColorPickModel(m, mm, m_camera.getViewMatrix(), m_camera.getPerspectiveMatrix(), m_colorPickShader, color);
+		m_dx11Renderer.renderColorPickModel(m, mm, m_currentCamera.getViewMatrix(), m_currentCamera.getPerspectiveMatrix(), m_colorPickShader, color);
 	}
 	m_dx11Renderer.enableDepth(true);
 
@@ -298,5 +313,5 @@ Entity* Renderer::colorPick(glm::vec2 cursorPosition)
 
 glm::vec3 Renderer::screenToWorldPosition(glm::vec2 cursorPosition, Framebuffer* framebuffer)
 {
-	return m_dx11Renderer.screenToWorldPosition(cursorPosition, m_camera.getViewMatrix(), m_camera.getPerspectiveMatrix(), framebuffer);
+	return m_dx11Renderer.screenToWorldPosition(cursorPosition, m_currentCamera.getViewMatrix(), m_currentCamera.getPerspectiveMatrix(), framebuffer);
 }
