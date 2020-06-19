@@ -4,17 +4,17 @@
 #include "filesystem/filesystem.h"
 #include "c_gamewindow.h"
 
-Engine::Engine(GameWindow* gameWindow) : m_world(), m_renderer(&m_world)
+Engine::Engine() : m_world(), m_renderer(&m_world)
 {
-	m_assetThread = asset::assetInit(&gameWindow->s_isTerminating);
+	m_assetThread = asset::assetInit();
 	filesystem::registerPlugin("game");
-	if (gameWindow->m_windowHandle == NULL)
+	if (GameWindow::s_windowHandle == NULL)
 	{
-		m_renderer.initialize(gameWindow);
+		m_renderer.initialize();
 	}
 	else
 	{
-		m_renderer.initialize(gameWindow);
+		m_renderer.initialize();
 	}
 
 

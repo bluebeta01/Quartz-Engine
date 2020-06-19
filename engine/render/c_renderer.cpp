@@ -10,20 +10,18 @@ Renderer::Renderer(World* world) : m_world(world)
 
 }
 
-void Renderer::initialize(GameWindow* gameWindow)
+void Renderer::initialize()
 {
-	m_width = gameWindow->s_clientSize.x;
-	m_height = gameWindow->s_clientSize.y;
-	m_currentCamera = Camera(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), 40.0f, 0.1f, 1000.0f, (float)m_width / (float)m_height);
-	m_dx11Renderer.initialize(gameWindow);
+	m_currentCamera = Camera(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), 40.0f, 0.1f, 1000.0f, (float)GameWindow::s_clientSize.x / (float)GameWindow::s_clientSize.y);
+	m_dx11Renderer.initialize();
 	m_standardShader = new StandardShader(m_dx11Renderer.m_device);
 	m_colorPickShader = new ColorPickShader(m_dx11Renderer.m_device);
 }
 
-Framebuffer* Renderer::createFramebuffer()
+Framebuffer* Renderer::createFramebuffer(int width, int height)
 {
 	Framebuffer* frameBuffer = new Framebuffer();
-	frameBuffer->initialize(m_dx11Renderer.m_device, m_width, m_height);
+	frameBuffer->initialize(m_dx11Renderer.m_device, width, height);
 	return frameBuffer;
 }
 
@@ -91,10 +89,8 @@ void Renderer::clearFramebuffer(Framebuffer* framebuffer)
 
 void Renderer::onResize()
 {
-	m_width = GameWindow::s_clientSize.x;
-	m_height = GameWindow::s_clientSize.y;
 	m_dx11Renderer.onResize();
-	m_colorPickShader->screenResize(GameWindow::s_clientSize.x, GameWindow::s_clientSize.y);
+	m_colorPickShader->screenResize(GameWindow::s_renderAreaSize.x, GameWindow::s_renderAreaSize.y);
 }
 
 void Renderer::tick()
@@ -108,7 +104,6 @@ void Renderer::render()
 	proccessLoadJobs();
 	m_dx11Renderer.clearFrame();
 	m_dx11Renderer.enableDepth(true);
-	glm::mat4 pm = glm::perspective(glm::radians(40.0f), (float)m_width / (float)m_height, 0.1f, 1000.0f);
 
 	std::vector<Entity*> onTopModels;
 

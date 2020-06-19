@@ -76,17 +76,18 @@ namespace Window
 
 bool GameWindow::s_isTerminating = false;
 bool GameWindow::s_resizeEvent = false;
+bool GameWindow::s_renderAreaLockedToClientSize = true;
 glm::vec2 GameWindow::s_clientSize = glm::vec2();
-
-GameWindow::GameWindow()
-{
-	m_windowHandle = nullptr;
-}
+glm::vec2 GameWindow::s_renderAreaSize = glm::vec2();
+glm::vec2 GameWindow::s_renderAreaTopLeft = glm::vec2();
+HWND GameWindow::s_windowHandle;
 
 void GameWindow::initialize(int sizeX, int sizeY)
 {
 	s_clientSize.x = sizeX;
 	s_clientSize.y = sizeY;
+	s_renderAreaSize.x = sizeX;
+	s_renderAreaSize.y = sizeY;
 	WNDCLASSEX wc;
 
 	// clear out the window class for use
@@ -105,7 +106,7 @@ void GameWindow::initialize(int sizeX, int sizeY)
 
 	RECT wr = { 0, 0, s_clientSize.x, s_clientSize.y};    // set the size, but not the position
 	AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, FALSE);    // adjust the size
-	m_windowHandle = CreateWindowEx(
+	s_windowHandle = CreateWindowEx(
 		0,                              // Optional window styles.
 		"quartzwindow",                     // Window class
 		"Quartz RPG Engine",    // Window text
@@ -120,17 +121,20 @@ void GameWindow::initialize(int sizeX, int sizeY)
 		NULL        // Additional application data
 	);
 
-	if (!m_windowHandle)
+	if (!s_windowHandle)
 	{
 		LOGERROR("Failed to create the window handle!");
 		return;
 	}
 
-	ShowWindow(m_windowHandle, 1);
+	ShowWindow(s_windowHandle, 1);
 }
 
 void GameWindow::tick()
 {
+	if (s_renderAreaLockedToClientSize)
+		s_renderAreaSize = s_clientSize;
+
 	input::clearKeysPressed();
 	input::clearMouseButtonsClicked();
 	s_resizeEvent = false;
@@ -142,7 +146,7 @@ void GameWindow::tick()
 
 		POINT p;
 		GetCursorPos(&p);
-		ScreenToClient(m_windowHandle, &p);
+		ScreenToClient(s_windowHandle, &p);
 		input::cursorDelta.x = p.x - input::cursorPosition.x;
 		input::cursorDelta.y = p.y - input::cursorPosition.y;
 
@@ -150,7 +154,7 @@ void GameWindow::tick()
 		{
 			centerCursor();
 			GetCursorPos(&p);
-			ScreenToClient(m_windowHandle, &p);
+			ScreenToClient(s_windowHandle, &p);
 		}
 		input::cursorPosition = glm::vec2(p.x, p.y);
 
@@ -163,7 +167,7 @@ void GameWindow::tick()
 void GameWindow::centerCursor()
 {
 	RECT windowRect = {};
-	GetWindowRect(m_windowHandle, &windowRect);
+	GetWindowRect(s_windowHandle, &windowRect);
 	int x = ((windowRect.right - windowRect.left) / 2) + windowRect.left;
 	int y = ((windowRect.bottom - windowRect.top) / 2) + windowRect.top;
 	SetCursorPos(x, y);

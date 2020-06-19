@@ -5,7 +5,7 @@ int main()
 {
 	Editor editor;
 
-	while (!editor.m_gameWindow->s_isTerminating)
+	while (!GameWindow::s_isTerminating)
 	{
 		editor.tick();
 		editor.render();

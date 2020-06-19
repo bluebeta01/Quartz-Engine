@@ -10,9 +10,7 @@
 class Dx11Renderer
 {
 public:
-	int m_width;
-	int m_height;
-	void initialize(GameWindow* gameWindow);
+	void initialize();
 	void uploadModel(JobLoadModel* job);
 	void uploadTexture(JobLoadTexture* job);
 	void renderModel(Model* model, glm::mat4 modelMatrix, glm::mat4 viewMatrix, glm::mat4 projectionMatrix,
@@ -30,7 +28,6 @@ public:
 
 	ID3D11Device* m_device;
 private:
-	GameWindow* m_gameWindow;
 	void rebuildDx();
 	IDXGISwapChain* m_swapChain;
 	ID3D11DeviceContext* m_deviceContext;

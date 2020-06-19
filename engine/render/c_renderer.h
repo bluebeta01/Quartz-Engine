@@ -13,13 +13,13 @@
 class Renderer
 {
 public:
-	int m_width;
-	int m_height;
+	//int m_width;
+	//int m_height;
 	StandardShader* m_standardShader = nullptr;
 	ColorPickShader* m_colorPickShader = nullptr;
 
 	Renderer(World* world);
-	void initialize(GameWindow* gameWindow);
+	void initialize();
 	Model* getModel(std::string name);
 	Texture* getTexture(std::string name);
 	Material* getMaterial(std::string name);
@@ -29,7 +29,7 @@ public:
 	Entity* colorPick(glm::vec2 cursorPosition);
 	void renderModel(Model* model, glm::mat4 modelMatrix, glm::mat4 viewMatrix, glm::mat4 projectionMatrix,
 		Material* overrideMaterial, Framebuffer* frameBuffer, bool depth);
-	Framebuffer* createFramebuffer();
+	Framebuffer* createFramebuffer(int width, int height);
 
 	void clearFramebuffer(Framebuffer* framebuffer);
 

@@ -3,15 +3,9 @@
 
 #include <lodepng.h>
 
-void Dx11Renderer::initialize(GameWindow* gameWindow)
+void Dx11Renderer::initialize()
 {
-	m_gameWindow = gameWindow;
-
-	m_width = gameWindow->s_clientSize.x;
-	m_height = gameWindow->s_clientSize.y;
-
 	D3D11CreateDevice(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, NULL, NULL, NULL, D3D11_SDK_VERSION, &m_device, NULL, &m_deviceContext);
-	
 	rebuildDx();
 }
 
@@ -37,7 +31,7 @@ void Dx11Renderer::rebuildDx()
 	scd.BufferCount = 1;                                    // one back buffer
 	scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;     // use 32-bit color
 	scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;      // how swap chain is to be used
-	scd.OutputWindow = m_gameWindow->m_windowHandle;                                // the window to be used
+	scd.OutputWindow = GameWindow::s_windowHandle;                                // the window to be used
 	scd.SampleDesc.Count = 1;                               // how many multisamples
 	scd.Windowed = TRUE;
 
@@ -66,8 +60,8 @@ void Dx11Renderer::rebuildDx()
 	//Describe our Depth/Stencil Buffer
 	D3D11_TEXTURE2D_DESC depthStencilDesc;
 	ZeroMemory(&depthStencilDesc, sizeof(D3D11_TEXTURE2D_DESC));
-	depthStencilDesc.Width = m_gameWindow->s_clientSize.x;
-	depthStencilDesc.Height = m_gameWindow->s_clientSize.y;
+	depthStencilDesc.Width = GameWindow::s_clientSize.x;
+	depthStencilDesc.Height = GameWindow::s_clientSize.y;
 	depthStencilDesc.MipLevels = 1;
 	depthStencilDesc.ArraySize = 1;
 	depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
@@ -102,8 +96,8 @@ void Dx11Renderer::rebuildDx()
 
 	viewport.TopLeftX = 0;
 	viewport.TopLeftY = 0;
-	viewport.Width = m_gameWindow->s_clientSize.x;
-	viewport.Height = m_gameWindow->s_clientSize.y;
+	viewport.Width = GameWindow::s_clientSize.x;
+	viewport.Height = GameWindow::s_clientSize.y;
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
 
@@ -134,8 +128,6 @@ void Dx11Renderer::rebuildDx()
 
 void Dx11Renderer::onResize()
 {
-	m_width = GameWindow::s_clientSize.x;
-	m_height = GameWindow::s_clientSize.y;
 	rebuildDx();
 }
 
@@ -306,8 +298,8 @@ glm::vec3 Dx11Renderer::getColorPickColor(glm::vec2 cursorPosition, ColorPickSha
 {
 	D3D11_TEXTURE2D_DESC desc;
 	ZeroMemory(&desc, sizeof(D3D11_TEXTURE2D_DESC));
-	desc.Width = m_width;
-	desc.Height = m_height;
+	desc.Width = GameWindow::s_renderAreaSize.x;
+	desc.Height = GameWindow::s_renderAreaSize.y;
 	desc.MipLevels = 1;
 	desc.ArraySize = 1;
 	desc.Format = DXGI_FORMAT_R16G16B16A16_UNORM;
@@ -347,10 +339,10 @@ glm::vec3 Dx11Renderer::getColorPickColor(glm::vec2 cursorPosition, ColorPickSha
 
 	lodepng::encode("C:/Users/Logan/Desktop/file.png", chars, m_width, m_height);*/
 
-	UINT rowPadding = ms.RowPitch - (m_width * 8);
+	UINT rowPadding = ms.RowPitch - (GameWindow::s_renderAreaSize.x * 8);
 	LOGDEBUG(rowPadding);
 
-	UINT yOffset = cursorPosition.y * (m_width * 8 + rowPadding);
+	UINT yOffset = cursorPosition.y * (GameWindow::s_renderAreaSize.x * 8 + rowPadding);
 	UINT xOffset = cursorPosition.x * 8;
 	UINT offset = xOffset + yOffset;
 
@@ -373,8 +365,8 @@ glm::vec3 Dx11Renderer::screenToWorldPosition(glm::vec2 cursorPosition, glm::mat
 {
 	D3D11_TEXTURE2D_DESC desc;
 	ZeroMemory(&desc, sizeof(D3D11_TEXTURE2D_DESC));
-	desc.Width = m_width;
-	desc.Height = m_height;
+	desc.Width = GameWindow::s_renderAreaSize.x;
+	desc.Height = GameWindow::s_renderAreaSize.y;
 	desc.MipLevels = 1;
 	desc.ArraySize = 1;
 	desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
@@ -398,7 +390,7 @@ glm::vec3 Dx11Renderer::screenToWorldPosition(glm::vec2 cursorPosition, glm::mat
 	memcpy(data, ms.pData, ms.DepthPitch);
 	m_deviceContext->Unmap(texture, 0);
 
-	UINT yOffset = cursorPosition.y * m_width;
+	UINT yOffset = cursorPosition.y * GameWindow::s_renderAreaSize.x;
 	UINT xOffset = cursorPosition.x;
 	UINT offset = yOffset + xOffset;
 

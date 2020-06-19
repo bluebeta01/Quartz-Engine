@@ -8,7 +8,6 @@ public:
 	Engine* m_engine;
 	Gizmo m_gizmo;
 	Entity* m_camera;
-	GameWindow* m_gameWindow;
 	Editor();
 	void tick();
 	void render();

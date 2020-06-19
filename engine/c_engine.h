@@ -9,7 +9,7 @@ class Engine
 public:
 	World m_world;
 	Renderer m_renderer;
-	Engine(GameWindow* gameWindow);
+	Engine();
 	void tick();
 	void terminate();
 

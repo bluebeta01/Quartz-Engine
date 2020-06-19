@@ -2,17 +2,19 @@
 #include <Windows.h>
 #include <glm.hpp>
 
-class GameWindow
+static class GameWindow
 {
 public:
-	HWND m_windowHandle;
+	static HWND s_windowHandle;
 	static bool s_isTerminating;
 	static glm::vec2 s_clientSize;
+	static glm::vec2 s_renderAreaSize;
+	static glm::vec2 s_renderAreaTopLeft;
 	static bool s_resizeEvent;
-	GameWindow();
-	void initialize(int sizeX, int sizeY);
-	void tick();
+	static bool s_renderAreaLockedToClientSize;
+	static void initialize(int sizeX, int sizeY);
+	static void tick();
 
 private:
-	void centerCursor();
+	static void centerCursor();
 };

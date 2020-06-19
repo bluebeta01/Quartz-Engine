@@ -4,16 +4,15 @@ Entity* plane;
 
 Editor::Editor()
 {
-	m_gameWindow = new GameWindow();
-	m_gameWindow->initialize(1280, 720);
-	m_engine = new Engine(m_gameWindow);
+	GameWindow::initialize(1280, 720);
+	m_engine = new Engine();
 
 	m_camera = m_engine->m_world.createEntity("Camera");
 	m_camera->addComponent(new CameraComponent());
 
 	dynamic_cast<CameraComponent*>(m_camera->getComponent(Component::COMPONENT_TYPE_CAMERA_COMPONENT))->m_camera
 		= Camera(glm::vec3(0, 0, 0), glm::vec3(0, 90, 0), glm::radians(40.0f), 0.1f, 1000.0f,
-		(float)m_engine->m_renderer.m_width / (float)m_engine->m_renderer.m_height);
+		(float)GameWindow::s_renderAreaSize.x / (float)GameWindow::s_renderAreaSize.y);
 
 	m_gizmo.initialize(&m_engine->m_renderer, &dynamic_cast<CameraComponent*>(m_camera->getComponent(Component::COMPONENT_TYPE_CAMERA_COMPONENT))->m_camera, &m_engine->m_world);
 
@@ -31,7 +30,7 @@ Editor::Editor()
 
 void Editor::tick()
 {
-	m_gameWindow->tick();
+	GameWindow::tick();
 	m_engine->tick();
 	cameraMovement();
 	m_gizmo.update();

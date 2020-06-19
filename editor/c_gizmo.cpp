@@ -16,7 +16,7 @@ void Gizmo::initialize(Renderer* renderer, Camera* camera, World* world)
 	this->camera = camera;
 	this->world = world;
 
-	frameBuffer = renderer->createFramebuffer();
+	frameBuffer = renderer->createFramebuffer(GameWindow::s_renderAreaSize.x, GameWindow::s_renderAreaSize.y);
 	createGizmo();
 }
 
@@ -132,9 +132,6 @@ void Gizmo::gizmoSelect()
 
 				Entity* debugPlane = world->createEntity("debugplane", Transform(m_gizmo->getWorldPosition(), glm::vec3(0, 0, 0), glm::vec3(1000, 1000, 1000)));
 				debugPlane->addComponent(new RenderComponent(renderer->getModel("debugplane")));
-				/*RenderComponent* rc = new RenderComponent();
-				rc->setModel(renderer->getModel("debugplane"));
-				debugPlane->addComponent(rc);*/
 
 				debugPlane->transform.rotation.y = -camera->transform.rotation.y - 90;
 
@@ -156,9 +153,6 @@ void Gizmo::gizmoSelect()
 
 				Entity* debugPlane = world->createEntity("debugplane", Transform(m_gizmo->getWorldPosition(), glm::vec3(-90, 0, 0), glm::vec3(1000, 1000, 1000)));
 				debugPlane->addComponent(new RenderComponent(renderer->getModel("debugplane")));
-				/*RenderComponent* rc = new RenderComponent();
-				rc->setModel(renderer->getModel("debugplane"));
-				debugPlane->addComponent(rc);*/
 
 				float d = debugPlane->transform.position.x - camera->transform.position.x;
 				if (signbit(d))
@@ -197,11 +191,6 @@ void Gizmo::gizmoDrag()
 		{
 			glm::vec3 newDepthPos = renderer->screenToWorldPosition(input::cursorPosition, frameBuffer);
 			float newX = newDepthPos.x - m_gizmoSelectLocation.x;
-			/*m_transformGizmoXArrow->setWorldPosition(glm::vec3(newX, m_transformGizmoXArrow->getWorldPosition().y, m_transformGizmoXArrow->getWorldPosition().z));
-			m_transformGizmoYArrow->setWorldPosition(glm::vec3(newX, m_transformGizmoYArrow->getWorldPosition().y, m_transformGizmoYArrow->getWorldPosition().z));
-			m_transformGizmoZArrow->setWorldPosition(glm::vec3(newX, m_transformGizmoZArrow->getWorldPosition().y, m_transformGizmoZArrow->getWorldPosition().z));
-			glm::vec3 entityWorldPos = m_selectedEntity->getWorldPosition();
-			m_selectedEntity->setWorldPosition(glm::vec3(newX, entityWorldPos.y, entityWorldPos.z));*/
 			m_gizmo->setWorldPosition(glm::vec3(newX, m_transformGizmoYArrow->getWorldPosition().y, m_transformGizmoYArrow->getWorldPosition().z));
 			glm::vec3 entityWorldPos = m_selectedEntity->getWorldPosition();
 			m_selectedEntity->setWorldPosition(glm::vec3(newX, entityWorldPos.y, entityWorldPos.z));
@@ -211,14 +200,6 @@ void Gizmo::gizmoDrag()
 		{
 			glm::vec3 newDepthPos = renderer->screenToWorldPosition(input::cursorPosition, frameBuffer);
 			float newY = (newDepthPos.y - m_gizmoSelectLocation.y);
-			/*glm::vec3 pos = m_transformGizmoXArrow->getWorldPosition();
-			m_transformGizmoXArrow->setWorldPosition(glm::vec3(pos.x, newY, pos.z));
-			pos = m_transformGizmoYArrow->getWorldPosition();
-			m_transformGizmoYArrow->setWorldPosition(glm::vec3(pos.x, newY, pos.z));
-			pos = m_transformGizmoZArrow->getWorldPosition();
-			m_transformGizmoZArrow->setWorldPosition(glm::vec3(pos.x, newY, pos.z));
-			pos = m_selectedEntity->getWorldPosition();
-			m_selectedEntity->setWorldPosition(glm::vec3(pos.x, newY, pos.z));*/
 			m_gizmo->setWorldPosition(glm::vec3(m_transformGizmoYArrow->getWorldPosition().x, newY, m_transformGizmoYArrow->getWorldPosition().z));
 			glm::vec3 entityWorldPos = m_selectedEntity->getWorldPosition();
 			m_selectedEntity->setWorldPosition(glm::vec3(entityWorldPos.x, newY, entityWorldPos.z));
@@ -228,14 +209,6 @@ void Gizmo::gizmoDrag()
 		{
 			glm::vec3 newDepthPos = renderer->screenToWorldPosition(input::cursorPosition, frameBuffer);
 			float newZ = (newDepthPos.z - m_gizmoSelectLocation.z);
-			/*glm::vec3 pos = m_transformGizmoXArrow->getWorldPosition();
-			m_transformGizmoXArrow->setWorldPosition(glm::vec3(pos.x, pos.y, newZ));
-			pos = m_transformGizmoYArrow->getWorldPosition();
-			m_transformGizmoYArrow->setWorldPosition(glm::vec3(pos.x, pos.y, newZ));
-			pos = m_transformGizmoZArrow->getWorldPosition();
-			m_transformGizmoZArrow->setWorldPosition(glm::vec3(pos.x, pos.y, newZ));
-			pos = m_selectedEntity->getWorldPosition();
-			m_selectedEntity->setWorldPosition(glm::vec3(pos.x, pos.y, newZ));*/
 			m_gizmo->setWorldPosition(glm::vec3(m_transformGizmoYArrow->getWorldPosition().x, m_transformGizmoYArrow->getWorldPosition().y, newZ));
 			glm::vec3 entityWorldPos = m_selectedEntity->getWorldPosition();
 			m_selectedEntity->setWorldPosition(glm::vec3(entityWorldPos.x, entityWorldPos.y, newZ));
