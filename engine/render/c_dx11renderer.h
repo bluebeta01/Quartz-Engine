@@ -11,6 +11,7 @@ class Dx11Renderer
 {
 public:
 	ID3D11Device* m_device;
+	ID3D11DeviceContext* m_deviceContext;
 
 	glm::vec3 getColorPickColor(glm::vec2 cursorPosition, ColorPickShader* shader);
 	glm::vec3 screenToWorldPosition(glm::vec2 cursorPosition, glm::mat4 viewMatrix, glm::mat4 projectionMatrix, Framebuffer* framebuffer);
@@ -30,7 +31,6 @@ public:
 private:
 	ID3D11SamplerState* m_samplerState;
 	IDXGISwapChain* m_swapChain;
-	ID3D11DeviceContext* m_deviceContext;
 	ID3D11RenderTargetView* m_backBuffer;
 	ID3D11DepthStencilView* m_depthStencilView;
 	ID3D11Texture2D* m_depthStencilBuffer;

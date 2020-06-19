@@ -25,6 +25,7 @@ public:
 	void tick();
 	StandardShader* m_standardShader = nullptr;
 	ColorPickShader* m_colorPickShader = nullptr;
+	Dx11Renderer m_dx11Renderer;
 	Model* getModel(std::string name);
 	Texture* getTexture(std::string name);
 	Material* getMaterial(std::string name);
@@ -35,7 +36,6 @@ private:
 	void onResize();
 
 	std::vector<Job*> m_jobVector;
-	Dx11Renderer m_dx11Renderer;
 	ModelManager m_modelManager;
 	TextureManager m_textureManager;
 	MaterialManager m_materialManager;

@@ -11,6 +11,7 @@ public:
 	static bool s_isTerminating;
 	static bool s_resizeEvent;
 	static bool s_renderAreaLockedToClientSize;
+	static bool (*s_imguiWndProcCallback)(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	static HWND s_windowHandle;
 
 	static void initialize(int sizeX, int sizeY);

@@ -8,6 +8,10 @@ namespace Window
 
 	LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
+		if (GameWindow::s_imguiWndProcCallback)
+			if (GameWindow::s_imguiWndProcCallback(hwnd, uMsg, wParam, lParam))
+				return true;
+
 		switch (uMsg)
 		{
 		case WM_LBUTTONDOWN:
@@ -81,6 +85,7 @@ glm::vec2 GameWindow::s_clientSize = glm::vec2();
 glm::vec2 GameWindow::s_renderAreaSize = glm::vec2();
 glm::vec2 GameWindow::s_renderAreaTopLeft = glm::vec2();
 HWND GameWindow::s_windowHandle;
+bool (*GameWindow::s_imguiWndProcCallback)(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) = nullptr;
 
 void GameWindow::initialize(int sizeX, int sizeY)
 {
