@@ -158,10 +158,15 @@
     <ClCompile Include="c_editor.cpp" />
     <ClCompile Include="c_gizmo.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="windows\c_renderwindow.cpp" />
+    <ClCompile Include="windows\c_windowmanager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="c_editor.h" />
     <ClInclude Include="c_gizmo.h" />
+    <ClInclude Include="windows\c_renderwindow.h" />
+    <ClInclude Include="windows\c_window.h" />
+    <ClInclude Include="windows\c_windowmanager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
