@@ -61,7 +61,7 @@ void Gizmo::selectEntity()
 {
 	if (input::isMouseButtonClicked(input::MOUSEBUTTON_LEFT))
 	{
-		Entity* e = renderer->colorPick(input::cursorPosition);
+		Entity* e = renderer->colorPick(GameWindow::s_cursorPosInRenderArea);
 		if (e) {
 			if (e->m_uid == m_transformGizmoXArrow->m_uid || e->m_uid == m_transformGizmoYArrow->m_uid || e->m_uid == m_transformGizmoZArrow->m_uid)
 				return;
@@ -94,13 +94,14 @@ void Gizmo::gizmoSelect()
 {
 	if (input::isMouseButtonClicked(input::MOUSEBUTTON_LEFT))
 	{
-		Entity* e = renderer->colorPick(input::cursorPosition);
+		Entity* e = renderer->colorPick(GameWindow::s_cursorPosInRenderArea);
 
 		if (e)
 		{
 			if (e->m_uid == m_transformGizmoXArrow->m_uid)
 			{
 				renderer->clearFramebuffer(frameBuffer);
+				renderer->setCustomViewport(GameWindow::s_renderAreaSize.x, GameWindow::s_renderAreaSize.y);
 
 				Entity* debugPlane = world->createEntity("debugplane", Transform(m_gizmo->getWorldPosition(), glm::vec3(-90, 0, 0), glm::vec3(1000, 1000, 1000)));
 				debugPlane->addComponent(new RenderComponent(renderer->getModel("debugplane")));
@@ -122,13 +123,15 @@ void Gizmo::gizmoSelect()
 
 				m_selectedGizmo = m_transformGizmoXArrow;
 
-				m_gizmoSelectLocation = renderer->screenToWorldPosition(input::cursorPosition, frameBuffer) - m_gizmo->getWorldPosition();
+				m_gizmoSelectLocation = renderer->screenToWorldPosition(GameWindow::s_cursorPosInRenderArea, frameBuffer) - m_gizmo->getWorldPosition();
 				
+				renderer->resetViewport();
 			}
 
 			if (e->m_uid == m_transformGizmoYArrow->m_uid)
 			{
 				renderer->clearFramebuffer(frameBuffer);
+				renderer->setCustomViewport(GameWindow::s_renderAreaSize.x, GameWindow::s_renderAreaSize.y);
 
 				Entity* debugPlane = world->createEntity("debugplane", Transform(m_gizmo->getWorldPosition(), glm::vec3(0, 0, 0), glm::vec3(1000, 1000, 1000)));
 				debugPlane->addComponent(new RenderComponent(renderer->getModel("debugplane")));
@@ -143,13 +146,14 @@ void Gizmo::gizmoSelect()
 
 				m_selectedGizmo = m_transformGizmoYArrow;
 
-				m_gizmoSelectLocation = renderer->screenToWorldPosition(input::cursorPosition, frameBuffer) - m_gizmo->getWorldPosition();
-
+				m_gizmoSelectLocation = renderer->screenToWorldPosition(GameWindow::s_cursorPosInRenderArea, frameBuffer) - m_gizmo->getWorldPosition();
+				renderer->resetViewport();
 			}
 
 			if (e->m_uid == m_transformGizmoZArrow->m_uid)
 			{
 				renderer->clearFramebuffer(frameBuffer);
+				renderer->setCustomViewport(GameWindow::s_renderAreaSize.x, GameWindow::s_renderAreaSize.y);
 
 				Entity* debugPlane = world->createEntity("debugplane", Transform(m_gizmo->getWorldPosition(), glm::vec3(-90, 0, 0), glm::vec3(1000, 1000, 1000)));
 				debugPlane->addComponent(new RenderComponent(renderer->getModel("debugplane")));
@@ -168,8 +172,8 @@ void Gizmo::gizmoSelect()
 
 				m_selectedGizmo = m_transformGizmoZArrow;
 
-				m_gizmoSelectLocation = renderer->screenToWorldPosition(input::cursorPosition, frameBuffer) - m_gizmo->getWorldPosition();
-
+				m_gizmoSelectLocation = renderer->screenToWorldPosition(GameWindow::s_cursorPosInRenderArea, frameBuffer) - m_gizmo->getWorldPosition();
+				renderer->resetViewport();
 			}
 
 		}

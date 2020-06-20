@@ -2,9 +2,12 @@
 #include "c_windowmanager.h"
 
 RenderWindow* WindowManager::s_renderWindow;
+ID3D11Device* WindowManager::s_device;
 
 void WindowManager::initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
 {
+	s_device = device;
+
 	ImGui_ImplWin32_EnableDpiAwareness();
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -34,7 +37,7 @@ void WindowManager::renderWindows()
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 
-	s_renderWindow->render();
+	s_renderWindow->render(s_device);
 
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());

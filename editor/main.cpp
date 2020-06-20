@@ -4,6 +4,39 @@
 #include <Imgui/imgui_impl_win32.h>
 #include <Imgui/imgui_impl_dx11.h>
 
+static bool ImGui_ImplWin32_UpdateMouseCursor()
+{
+	ImGuiIO& io = ImGui::GetIO();
+	if (io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange)
+		return false;
+
+	ImGuiMouseCursor imgui_cursor = ImGui::GetMouseCursor();
+	if (imgui_cursor == ImGuiMouseCursor_None || io.MouseDrawCursor)
+	{
+		// Hide OS mouse cursor if imgui is drawing it or if it wants no cursor
+		::SetCursor(NULL);
+	}
+	else
+	{
+		// Show OS mouse cursor
+		LPTSTR win32_cursor = IDC_ARROW;
+		switch (imgui_cursor)
+		{
+		case ImGuiMouseCursor_Arrow:        win32_cursor = IDC_ARROW; break;
+		case ImGuiMouseCursor_TextInput:    win32_cursor = IDC_IBEAM; break;
+		case ImGuiMouseCursor_ResizeAll:    win32_cursor = IDC_SIZEALL; break;
+		case ImGuiMouseCursor_ResizeEW:     win32_cursor = IDC_SIZEWE; break;
+		case ImGuiMouseCursor_ResizeNS:     win32_cursor = IDC_SIZENS; break;
+		case ImGuiMouseCursor_ResizeNESW:   win32_cursor = IDC_SIZENESW; break;
+		case ImGuiMouseCursor_ResizeNWSE:   win32_cursor = IDC_SIZENWSE; break;
+		case ImGuiMouseCursor_Hand:         win32_cursor = IDC_HAND; break;
+		case ImGuiMouseCursor_NotAllowed:   win32_cursor = IDC_NO; break;
+		}
+		::SetCursor(::LoadCursor(NULL, win32_cursor));
+	}
+	return true;
+}
+
 bool wndImguiProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	if (ImGui::GetCurrentContext() == NULL)
@@ -63,11 +96,11 @@ bool wndImguiProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		if (wParam > 0 && wParam < 0x10000)
 			io.AddInputCharacterUTF16((unsigned short)wParam);
 		return 0;
-		/*case WM_SETCURSOR:
+		case WM_SETCURSOR:
 			if (LOWORD(lParam) == HTCLIENT && ImGui_ImplWin32_UpdateMouseCursor())
 				return 1;
 			return 0;
-		case WM_DEVICECHANGE:
+		/*case WM_DEVICECHANGE:
 			if ((UINT)wParam == DBT_DEVNODES_CHANGED)
 				g_WantUpdateHasGamepad = true;
 			return 0;

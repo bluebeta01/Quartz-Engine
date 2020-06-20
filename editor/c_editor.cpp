@@ -9,9 +9,10 @@ Entity* plane;
 Editor::Editor()
 {
 	GameWindow::initialize(1280, 720);
+	GameWindow::s_renderAreaLockedToClientSize = false;
 	m_engine = new Engine();
 
-
+	m_renderWindowFramebuffer = m_engine->m_renderer.createFramebuffer(GameWindow::s_renderAreaSize.x, GameWindow::s_renderAreaSize.y);
 	m_camera = m_engine->m_world.createEntity("Camera");
 	m_camera->addComponent(new CameraComponent());
 
@@ -31,8 +32,10 @@ Editor::Editor()
 	ball->addComponent(new RenderComponent(m_engine->m_renderer.getModel("woodball")));
 	plane->addChild(ball);
 	
+
 	WindowManager::initialize(m_engine->m_renderer.m_dx11Renderer.m_device,
 		m_engine->m_renderer.m_dx11Renderer.m_deviceContext);
+	WindowManager::s_renderWindow->m_framebuffer = m_renderWindowFramebuffer;
 }
 
 void Editor::tick()
@@ -42,14 +45,29 @@ void Editor::tick()
 	cameraMovement();
 	m_gizmo.update();
 
-	plane->transform.rotation.x += 0.3f;
+	//plane->transform.rotation.x += 0.3f;
 }
 
 void Editor::render()
 {
 	m_engine->m_renderer.setCamera(dynamic_cast<CameraComponent*>(m_camera->getComponent(Component::COMPONENT_TYPE_CAMERA_COMPONENT))->m_camera);
+	m_engine->m_renderer.setFramebuffer(m_renderWindowFramebuffer);
 	m_engine->m_renderer.render();
+	m_engine->m_renderer.setFramebuffer(nullptr);
 	WindowManager::renderWindows();
+	if (WindowManager::s_renderWindow->m_resized)
+	{
+		GameWindow::s_renderAreaSize.x = WindowManager::s_renderWindow->m_width;
+		GameWindow::s_renderAreaSize.y = WindowManager::s_renderWindow->m_height;
+		GameWindow::s_resizeEvent = true;
+		m_renderWindowFramebuffer->rebuildFramebuffer(GameWindow::s_renderAreaSize.x, GameWindow::s_renderAreaSize.y);
+	}
+	else
+	{
+		GameWindow::s_resizeEvent = false;
+	}
+	if (GameWindow::s_resizeEvent)
+		m_engine->m_renderer.forceResize();
 	m_engine->m_renderer.present();
 }
 

@@ -8,6 +8,7 @@ public:
 	static glm::vec2 s_clientSize;
 	static glm::vec2 s_renderAreaSize;
 	static glm::vec2 s_renderAreaTopLeft;
+	static glm::vec2 s_cursorPosInRenderArea;
 	static bool s_isTerminating;
 	static bool s_resizeEvent;
 	static bool s_renderAreaLockedToClientSize;

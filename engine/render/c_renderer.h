@@ -23,6 +23,11 @@ public:
 	void clearFramebuffer(Framebuffer* framebuffer);
 	void proccessLoadJobs();
 	void tick();
+	///<summary>Sets the framebuffer to render to. Pass nullptr to use no framebuffer</summary>
+	void setFramebuffer(Framebuffer* frameBuffer);
+	void forceResize();
+	void resetViewport();
+	void setCustomViewport(int width, int height);
 	StandardShader* m_standardShader = nullptr;
 	ColorPickShader* m_colorPickShader = nullptr;
 	Dx11Renderer m_dx11Renderer;
@@ -41,4 +46,5 @@ private:
 	MaterialManager m_materialManager;
 	Camera m_currentCamera;
 	World* m_world;
+	Framebuffer* m_activeFramebuffer;
 };

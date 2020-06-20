@@ -8,6 +8,7 @@ public:
 	Engine* m_engine;
 	Gizmo m_gizmo;
 	Entity* m_camera;
+	Framebuffer* m_renderWindowFramebuffer;
 	Editor();
 	void tick();
 	void render();

@@ -27,6 +27,9 @@ public:
 	void onResize();
 	void clearFrame();
 	void present();
+	void resetRenderTarget();
+	void resetViewport();
+	void setCustomViewport(int width, int height);
 
 private:
 	ID3D11SamplerState* m_samplerState;

@@ -56,8 +56,8 @@ void ColorPickShader::rebuildRenderTextures(int width, int height)
 	
 	D3D11_TEXTURE2D_DESC textureDesc;
 	ZeroMemory(&textureDesc, sizeof(D3D11_TEXTURE2D_DESC));
-	textureDesc.Width = GameWindow::s_clientSize.x;
-	textureDesc.Height = GameWindow::s_clientSize.y;
+	textureDesc.Width = GameWindow::s_renderAreaSize.x;
+	textureDesc.Height = GameWindow::s_renderAreaSize.y;
 	textureDesc.MipLevels = 1;
 	textureDesc.ArraySize = 1;
 	textureDesc.Format = DXGI_FORMAT_R16G16B16A16_UNORM;

@@ -84,6 +84,7 @@ bool GameWindow::s_renderAreaLockedToClientSize = true;
 glm::vec2 GameWindow::s_clientSize = glm::vec2();
 glm::vec2 GameWindow::s_renderAreaSize = glm::vec2();
 glm::vec2 GameWindow::s_renderAreaTopLeft = glm::vec2();
+glm::vec2 GameWindow::s_cursorPosInRenderArea = glm::vec2();
 HWND GameWindow::s_windowHandle;
 bool (*GameWindow::s_imguiWndProcCallback)(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) = nullptr;
 

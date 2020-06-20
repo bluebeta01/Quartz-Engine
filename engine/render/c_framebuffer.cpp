@@ -38,7 +38,8 @@ void Framebuffer::rebuildFramebuffer(int width, int height)
 	renderTextureDesc.SampleDesc.Count = 1;
 	renderTextureDesc.SampleDesc.Quality = 0;
 	renderTextureDesc.Usage = D3D11_USAGE_DEFAULT;
-	renderTextureDesc.BindFlags = D3D11_BIND_RENDER_TARGET;
+	renderTextureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+	
 	HRESULT status = m_device->CreateTexture2D(&renderTextureDesc, NULL, &m_renderTexture);
 	if (status != S_OK)
 		LOGERROR("Failed to create framebuffer render texture!");
@@ -46,7 +47,7 @@ void Framebuffer::rebuildFramebuffer(int width, int height)
 	status = m_device->CreateRenderTargetView(m_renderTexture, NULL, &m_renderTextureView);
 	if (status != S_OK)
 		LOGERROR("Failed to create framebuffer render texture view!");
-
+	
 
 	D3D11_TEXTURE2D_DESC depthStencilDesc;
 	ZeroMemory(&depthStencilDesc, sizeof(D3D11_TEXTURE2D_DESC));

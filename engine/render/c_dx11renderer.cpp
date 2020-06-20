@@ -107,6 +107,24 @@ void Dx11Renderer::rebuildDx()
 	m_deviceContext->RSSetState(rasterState);
 }
 
+void Dx11Renderer::resetViewport()
+{
+	setCustomViewport(GameWindow::s_clientSize.x, GameWindow::s_clientSize.y);
+}
+
+void Dx11Renderer::setCustomViewport(int width, int height)
+{
+	D3D11_VIEWPORT viewport;
+	ZeroMemory(&viewport, sizeof(D3D11_VIEWPORT));
+	viewport.TopLeftX = 0;
+	viewport.TopLeftY = 0;
+	viewport.Width = width;
+	viewport.Height = height;
+	viewport.MinDepth = 0.0f;
+	viewport.MaxDepth = 1.0f;
+	m_deviceContext->RSSetViewports(1, &viewport);
+}
+
 void Dx11Renderer::onResize()
 {
 	rebuildDx();
@@ -165,6 +183,12 @@ void Dx11Renderer::clearFramebuffer(Framebuffer* framebuffer)
 	m_deviceContext->ClearRenderTargetView(framebuffer->m_renderTextureView, glm::value_ptr(glm::vec4(0, 0.2, 0.4, 1)));
 	m_deviceContext->ClearDepthStencilView(framebuffer->m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
+
+void Dx11Renderer::resetRenderTarget()
+{
+	m_deviceContext->OMSetRenderTargets(1, &m_backBuffer, m_depthStencilView);
+}
+
 void Dx11Renderer::renderModel(Model* model, glm::mat4 modelMatrix, glm::mat4 viewMatrix, glm::mat4 projectionMatrix,
 	Material* overrideMaterial, StandardShader* shader, Framebuffer* frameBuffer)
 {
@@ -221,7 +245,7 @@ void Dx11Renderer::present()
 }
 void Dx11Renderer::clearColorPick(ColorPickShader* shader)
 {
-	m_deviceContext->ClearRenderTargetView(shader->m_renderTargetView, glm::value_ptr(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)));
+	m_deviceContext->ClearRenderTargetView(shader->m_renderTargetView, glm::value_ptr(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)));
 	m_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 void Dx11Renderer::renderColorPickModel(Model* model, glm::mat4 modelMatrix, glm::mat4 viewMatrix, glm::mat4 projectionMatrix, ColorPickShader* shader, glm::vec3 color)
@@ -233,6 +257,7 @@ void Dx11Renderer::renderColorPickModel(Model* model, glm::mat4 modelMatrix, glm
 	m_deviceContext->VSSetShader(shader->m_dxVertexShader, 0, 0);
 	m_deviceContext->PSSetShader(shader->m_dxPixelShader, 0, 0);
 	m_deviceContext->IASetInputLayout(shader->m_dxBufferLayout);
+	setCustomViewport(GameWindow::s_renderAreaSize.x, GameWindow::s_renderAreaSize.y);
 
 	UINT offset = 0;
 	m_deviceContext->IASetVertexBuffers(0, 1, &model->dxVertexBuffer, &model->m_vertexSize, &offset);
@@ -259,6 +284,8 @@ void Dx11Renderer::renderColorPickModel(Model* model, glm::mat4 modelMatrix, glm
 	m_deviceContext->VSSetConstantBuffers(0, 1, &shader->m_buffer);
 	m_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	m_deviceContext->Draw(model->vertCount, 0);
+
+	resetViewport();
 }
 float roundTwoPlaces(float value)
 {
@@ -301,6 +328,9 @@ glm::vec3 Dx11Renderer::getColorPickColor(glm::vec2 cursorPosition, ColorPickSha
 	UINT yOffset = cursorPosition.y * (GameWindow::s_renderAreaSize.x * 8 + rowPadding);
 	UINT xOffset = cursorPosition.x * 8;
 	UINT offset = xOffset + yOffset;
+
+	if (offset > ms.DepthPitch - sizeof(uint16_t) * 4)
+		return glm::vec3(0, 0, 0);
 
 	uint16_t pixelColor[4];
 	memcpy(pixelColor, &data[offset], sizeof(uint16_t)*4);

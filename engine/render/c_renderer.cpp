@@ -93,16 +93,40 @@ void Renderer::onResize()
 	m_colorPickShader->screenResize(GameWindow::s_renderAreaSize.x, GameWindow::s_renderAreaSize.y);
 }
 
+void Renderer::setFramebuffer(Framebuffer* framebuffer)
+{
+	m_activeFramebuffer = framebuffer;
+	if (!framebuffer)
+	{
+		m_dx11Renderer.resetRenderTarget();
+		m_dx11Renderer.resetViewport();
+	}
+	else
+	{
+		m_dx11Renderer.setCustomViewport(framebuffer->m_width, framebuffer->m_height);
+	}
+		
+}
+
 void Renderer::tick()
 {
-	if (GameWindow::s_resizeEvent)
-		onResize();
+	
+}
+
+void Renderer::forceResize()
+{
+	onResize();
 }
 
 void Renderer::render()
 {
+	if (GameWindow::s_resizeEvent)
+		onResize();
+
 	proccessLoadJobs();
 	m_dx11Renderer.clearFrame();
+	if (m_activeFramebuffer)
+		m_dx11Renderer.clearFramebuffer(m_activeFramebuffer);
 	m_dx11Renderer.enableDepth(true);
 
 	std::vector<Entity*> onTopModels;
@@ -124,7 +148,7 @@ void Renderer::render()
 				continue;
 			}
 			glm::mat4 mm = pair.second->getModelMatrix();
-			m_dx11Renderer.renderModel(m, mm, m_currentCamera.getViewMatrix(), m_currentCamera.getPerspectiveMatrix(), NULL, m_standardShader, nullptr);
+			m_dx11Renderer.renderModel(m, mm, m_currentCamera.getViewMatrix(), m_currentCamera.getPerspectiveMatrix(), NULL, m_standardShader, m_activeFramebuffer);
 		}
 	}
 
@@ -134,7 +158,7 @@ void Renderer::render()
 		RenderComponent* rc = dynamic_cast<RenderComponent*>(e->getComponent(Component::COMPONENT_TYPE_RENDER_COMPONENT));
 		Model* m = rc->getModel();
 		glm::mat4 mm = e->getModelMatrix();
-		m_dx11Renderer.renderModel(m, mm, m_currentCamera.getViewMatrix(), m_currentCamera.getPerspectiveMatrix(), NULL, m_standardShader, nullptr);
+		m_dx11Renderer.renderModel(m, mm, m_currentCamera.getViewMatrix(), m_currentCamera.getPerspectiveMatrix(), NULL, m_standardShader, m_activeFramebuffer);
 	}
 	m_dx11Renderer.enableDepth(true);
 	
@@ -307,4 +331,14 @@ Entity* Renderer::colorPick(glm::vec2 cursorPosition)
 glm::vec3 Renderer::screenToWorldPosition(glm::vec2 cursorPosition, Framebuffer* framebuffer)
 {
 	return m_dx11Renderer.screenToWorldPosition(cursorPosition, m_currentCamera.getViewMatrix(), m_currentCamera.getPerspectiveMatrix(), framebuffer);
+}
+
+void Renderer::setCustomViewport(int width, int height)
+{
+	m_dx11Renderer.setCustomViewport(width, height);
+}
+
+void Renderer::resetViewport()
+{
+	m_dx11Renderer.resetViewport();
 }
